@@ -1,0 +1,22 @@
+
+/*这里引入了tkui中导出的主题配置*/
+@import "tkuiVariables";
+
+.login,.index,.brand,help-feedback {
+  .scroll-content {
+    background: #fff;
+    text-align: center;
+  }
+  .tkui-header {
+    text-align: left;
+  }
+
+}
+
+.tk-container-footer {
+  span  {
+    font-size:0.8rem;
+    padding: 0.2rem;
+  }
+}
+

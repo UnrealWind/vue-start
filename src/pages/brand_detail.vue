@@ -1,0 +1,83 @@
+<template>
+  <tk-container class="brand">
+    <tkui-header center>
+      <tkui-button slot="left" class="icon" v-on:click="back()">
+        <tk-icon material>keyboard_arrow_left</tk-icon>
+      </tkui-button>选择品牌
+    </tkui-header>
+    <h2>主营品牌</h2>
+    <tk-flex wrap>
+      <div v-on:click="chose(opt)" class="item tk-grid-4" v-for="opt in brands">
+        <tkui-button border primary v-show="!opt.active">{{opt.name}}</tkui-button>
+        <tkui-button raised primary v-show="opt.active">{{opt.name}}</tkui-button>
+      </div>
+    </tk-flex>
+  </tk-container>
+</template>
+
+<script>
+export default {
+  name: 'brand-detail',
+  layout: 'brand-detail',
+  data: function() {
+    return {
+      brands:[],
+      type:'whatever'
+    }
+  },
+  activated:function(){
+
+  },
+  mounted:function(){
+    this.brands = JSON.parse(JSON.stringify(this.$getFlash('flash').brands));
+    this.userInfo = JSON.parse(JSON.stringify(this.$store.state.user));
+    this.$getFlash('flash').type?this.type = this.$getFlash('flash').type:'';
+  },
+  methods:{
+    back:function(){
+      this.$back();
+      this.$setFlash('flash',{
+        brands:this.brands
+      });
+    },
+    chose:function(opt){
+      this.type == 'whatever'?(async()=>{
+        var that = this;
+        opt['active']?(opt['active'] = false,this.userInfo.mainBrand.splice(this.userInfo.mainBrand.indexOf(opt.objectId),1)):
+          (opt['active'] = true,this.userInfo.mainBrand = this.userInfo.mainBrand.concat([opt.objectId]));
+        (async()=>{
+
+          //..  这里更新数据的文档写的有些模糊了，不过结合上下文来看是这么写，试了一下是可以的
+          let res = await this.$tkParse.put('/classes/_User/'+this.$store.state.user.objectId,{
+            mainBrand:this.userInfo.mainBrand
+          },{})
+          that.$store.commit('setUser',that.userInfo);
+        })();
+      })():(async()=>{
+        opt['active']?opt['active'] = false:(async()=>{
+          this.brands.forEach(function(n,i){
+            n['active'] = false;
+          })
+          opt['active'] = true;
+        })()
+        console.log(this.brands)
+      })()
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+  h2 {
+    font-size:1rem;
+    font-weight:500;
+    padding:1rem;
+    color:#666;
+    text-align:left;
+  }
+  .tkui-button {
+    min-width:80%;
+  }
+
+</style>
+
