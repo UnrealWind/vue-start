@@ -23,6 +23,9 @@ const auth = [{
 }]
 
 routerAuth.then(function(res){
+  VueTk.history.init(router,{
+    transitionMode:"always"
+  });
   res == 'success'?(VueTk.tkRouterAuth.init(auth, router),VueTk.history.replace('/')):(VueTk.tkRouterAuth.init(auth, router),VueTk.history.replace('/login'))
 })
 
