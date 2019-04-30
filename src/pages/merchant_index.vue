@@ -75,7 +75,6 @@ export default {
     },
     goBrandDetail:function(n,i){
       let brand = this.getBrands();
-      console.log(this.mainBrand,this.userInfo.mainBrand)
       this.$push({
         path:'/brand-detail',
         flash:{
@@ -113,10 +112,11 @@ export default {
       });
     },
     getBrands:function(){
+      let that = this;
       let brand = JSON.parse(JSON.stringify(this.mainBrand));
       brand.forEach((n,i)=>{
-        this.userInfo.mainBrand.forEach((ni,ii)=>{
-          !n['active']?n['active'] = false:'';
+        !n['active']?n['active'] = false:'';
+        that.userInfo.mainBrand.forEach((ni,ii)=>{
           ni == n.objectId ? n['active'] = true:'';
         })
       })

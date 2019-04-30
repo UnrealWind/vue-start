@@ -10,7 +10,7 @@
         <span  @click="goCartDetail(order)"  v-for="order in orders">
           <tkui-list >
             <div class="list-header" >
-              <h2><span v-for="(shop,index) in order.detail"><span v-if="index !== 0">、</span>{{shop.shop.shopName}}</span>
+              <h2><span>{{order.titleName}}</span>
                 <span class="pull-right" v-bind:class="{ gray: order.status !== 'complete'}">{{order.paidStatus}}</span>
               </h2>
             </div>
@@ -25,7 +25,7 @@
         </span>
       </tkui-tab-item>
       <tkui-tab-item label="待付款">
-        <span v-if="order.user.objectId == userInfo.objectId && order.status == 'unpaid'" @click="goCartDetail(order)"  v-for="order in orders">
+        <span v-if=" order.status == 'unpaid'" @click="goCartDetail(order)"  v-for="order in orders">
           <tkui-list>
             <div class="list-header" >
               <h2><span v-for="(shop,index) in order.detail"><span v-if="index !== 0">、</span>{{shop.shop.shopName}}</span>
@@ -43,7 +43,7 @@
         </span>
       </tkui-tab-item>
       <tkui-tab-item label="已完成">
-        <span v-if="order.user.objectId == userInfo.objectId && order.status == 'complete'" @click="goCartDetail(order)"  v-for="order in orders">
+        <span v-if="order.status == 'complete'" @click="goCartDetail(order)"  v-for="order in orders">
           <tkui-list>
             <div class="list-header" >
               <h2><span v-for="(shop,index) in order.detail"><span v-if="index !== 0">、</span>{{shop.shop.shopName}}</span>
@@ -61,7 +61,7 @@
         </span>
       </tkui-tab-item>
       <tkui-tab-item label="已取消">
-        <span v-if="order.user.objectId == userInfo.objectId && order.status == 'close'" @click="goCartDetail(order)"  v-for="order in orders">
+        <span v-if=" order.status == 'close'" @click="goCartDetail(order)"  v-for="order in orders">
           <tkui-list>
             <div class="list-header" >
               <h2><span v-for="(shop,index) in order.detail"><span v-if="index !== 0">、</span>{{shop.shop.shopName}}</span>
@@ -119,6 +119,7 @@ export default {
         let res = await this.$tkParse.get('/classes/order',{
           params: {  // url参数
             //include:'user',
+            order:'-createdAt',
             where:{
               user:this.userInfo.objectId
             }
@@ -134,8 +135,12 @@ export default {
             case 'complete':n.paidStatus = '已完成';break;
             case 'close':n.paidStatus = '已关闭';break;
           }
+          n['titleName'] = '';
+          let titleName = {};
           n.detail.forEach((ni,ii)=>{
-            n.price += ni.price
+            n.price += ni.price;
+            !titleName[ni.shop.shopName]?
+              (ii==0?n['titleName']+= ni.shop.shopName:n['titleName']+= '，'+ni.shop.shopName,titleName[ni.shop.shopName] =true):'';
           })
         })
       })();

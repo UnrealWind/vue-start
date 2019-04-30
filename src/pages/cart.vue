@@ -1,5 +1,5 @@
 <template>
-  <tk-container>
+  <tk-container :status="status">
     <tkui-header center>购物车</tkui-header>
     <tkui-list v-for="(commoditys, shopId) in cart">
       <div class="list-header">
@@ -47,13 +47,16 @@ export default {
   data: function() {
     return {
       cart:[],
-      totalPrice:0
+      totalPrice:0,
+      //waiting - 加载中  loading-  empty-
+      status:'loading'
     }
   },
   activated:function(){
     (async () => {
       this.cart = JSON.parse(JSON.stringify(this.$store.state.cart));
       this.calculationPrice();
+      Object.keys(this.cart).length > 0?this.status = false:this.status = 'empty';
     })();
   },
   mounted:function(){
@@ -182,12 +185,10 @@ export default {
   }
 
   .fix-footer-addin {
-    bottom: 0;
     background-color: #fff;
     width: 100%;
     height:3rem;
     margin-top:1rem;
-    position:fixed;
     .left{
       padding:1rem;
       color:red;

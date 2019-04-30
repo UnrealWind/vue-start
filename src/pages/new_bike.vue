@@ -12,16 +12,8 @@
     </tkui-list>
 
     <tkui-list>
+      <tkui-list-picker v-if="brands" v-model="brand" :items="brands" label="品牌" placeholder="请选择品牌"></tkui-list-picker>
 
-      <span @click="goBrandDetail()">
-        <tkui-list-item>
-        品牌
-        <span slot="right">
-            <span>{{brand}}</span>
-        </span>
-        <tk-icon color="#666" slot="right">return1</tk-icon>
-      </tkui-list-item>
-      </span>
       <tkui-input v-model="price" label="价格" wrapLabel placeHolder="请填写车型价格"></tkui-input>
       <tkui-input v-model="des" label="买卖亮点" wrapLabel placeHolder="请填写车型亮点"></tkui-input>
 
@@ -30,10 +22,9 @@
           <label class="tkui-label">产品图片</label>
           <div class="tkui-input-body">
 
-            <tk-flex class="img-wrap" middle center @click.native="pick">
-              <div class="md-subheading" v-if="!file">选择一个文件</div>
-              <img class="tiny-img" :src="file.url" v-else-if="isImage" />
-              <div class="md-subheading" v-else></div>
+            <tk-flex style="flex-direction: column;" class="img-wrap" middle center @click.native="pick">
+              <div class="md-subheading">选择一个文件</div>
+              <img class="tiny-img" :src="file.url"/>
             </tk-flex>
           </div>
         </div>
@@ -53,12 +44,13 @@
         bikeName:'',
         type: 'image',
         from: 'file',
-        file: null,
+        file: {},
         mainBrand:[],
         userInfo:{},
         price:0,
         des:'',
-        brand:''
+        brand:'',
+        brands:null
       }
     },
     computed:{
@@ -69,12 +61,21 @@
     mounted:function(){
       this.mainBrand = this.$getFlash('flash').brands;
       this.userInfo = this.$store.state.user;
-
+      this.brands = {};
       this.mainBrand.forEach((n,i)=>{
-        n['active']?this.brand = n.name:n['active'] = false;
+        this.brands[n.objectId] = n.name;
       });
 
-      console.log(this.mainBrand,this.userInfo)
+      console.log(this.$getFlash('flash').bike)
+      this.$getFlash('flash').bike?(()=>{
+        this.bikeName = this.$getFlash('flash').bike.modelName;
+        this.brand = this.$getFlash('flash').bike.brand;
+        this.price =this.$getFlash('flash').bike.price;
+        this.des = this.$getFlash('flash').bike.configInfo;
+        this.file['url'] = this.$getFlash('flash').bike.tagImg;
+        })():'';
+
+      console.log(this.mainBrand,this.userInfo,this.brands)
     },
     methods:{
       back:function(){
@@ -95,29 +96,29 @@
             window.alert(e.message)
           })
       },
-      goBrandDetail(){
-        this.$push({
-          path:'/brand-detail',
-          flash:{
-            flash:{
-              brands:this.$getFlash('flash').brands,
-              type:'single'
-            }
-          }
-        });
-      },
       commit(){
-        (async()=>{
-          let res = await this.$tkParse.post('/classes/model', {
-            user:this.userInfo.objectId,
-            price:Number(this.price),
-            tagImg:this.file.url,
-            modelName:this.bikeName,
-            configInfo:this.des,
-            brand:this.brand
-          })
-          res.status =='200'|| res.status =='201'?this.$refs.toast.add('新增车型成功！'):this.$refs.toast.add('新增车型失败！')
-        })();
+
+          !this.$getFlash('flash').bike?(async ()=>{
+              let res = await this.$tkParse.post('/classes/model', {
+                user:this.userInfo.objectId,
+                price:Number(this.price),
+                tagImg:this.file.url || null,
+                modelName:this.bikeName,
+                configInfo:this.des,
+                brand:this.brand
+              })
+            res.status =='200'|| res.status =='201'?(this.$refs.toast.add('新增车型成功！'),this.back()):this.$refs.toast.add('新增车型失败！')
+          })():(async ()=>{
+            let res = await this.$tkParse.put('/classes/model/'+this.$getFlash('flash').bike.objectId, {
+              user:this.userInfo.objectId,
+              price:Number(this.price),
+              tagImg:this.file.url || null,
+              modelName:this.bikeName,
+              configInfo:this.des,
+              brand:this.brand
+            })
+            res.status =='200'|| res.status =='201'?(this.$refs.toast.add('新增车型成功！'),this.back()):this.$refs.toast.add('新增车型失败！')
+          })()
       }
     }
   }
@@ -129,8 +130,6 @@
   }
   .tkui-list-item {
     padding:0;
-  }
-  .tkui-list-item {
     .right>span {
       max-width:200px;
       display:inline-block;
@@ -138,9 +137,15 @@
       text-overflow:ellipsis;
       white-space: nowrap;
     }
+    .left {
+      .tkui-list-picker-label {
+        font-size:0.8rem;
+      }
+    }
   }
   .tiny-img {
-    width:80px;
     height:80px;
+    margin-top:1rem;
   }
+
 </style>

@@ -11,7 +11,7 @@
       <tkui-list-item divider v-for="opt in commodity" >
         <img slot="left" v-bind:src="opt.tagImg" class="avatar" />
         <div class="content"  v-on:click="goCommodityPage(opt)">
-          <div class="title">{{opt.brand}}</div>
+          <div class="title">{{opt.modelName}}</div>
           <div class="des">{{opt.configInfo}}</div>
           <div class="price">¥{{opt.price}}</div>
         </div>

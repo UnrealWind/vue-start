@@ -160,7 +160,6 @@ export default {
     padding: 1rem 1rem 0 1rem;
   }
   .tiny-img {
-    width:80px;
     height:80px;
   }
   #tipinput {

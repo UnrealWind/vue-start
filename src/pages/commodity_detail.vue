@@ -9,7 +9,7 @@
     <tk-image height="0" width="0" :src="commodity.tagImg"  style="width: 100%;height:375px;" ></tk-image>
     <div class="commodity-des">
       <h3>¥{{commodity.price}}</h3>
-      <div class="des">{{commodity.configInfo}}</div>
+      <div class="des">{{commodity.modelName}}</div>
       <div class="des-min">最近上新</div>
     </div>
     <div class="buy">

@@ -60,7 +60,6 @@ export default {
           })
           opt['active'] = true;
         })()
-        console.log(this.brands)
       })()
     }
   }

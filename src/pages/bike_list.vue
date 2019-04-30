@@ -45,39 +45,36 @@
       var that = this;
       this.shop = this.$store.state.user;
 
+      let re = (arr1,arr2)=>{
+        arr1.forEach((ni,ii)=>{
+          ni['active'] = false;
+          ni['options'] = [];
+          arr2.forEach((n,i)=>{
+            n.brand.indexOf(ni.name)>-1?(ni.options.push(n),ni.active = true):'';
+          })
+        })
+      };
+
+      //fydebug@20190430这里业务逻辑和我自己想的不一样
+      //this.brands = JSON.parse(JSON.stringify(this.$getFlash('flash').brands))
       (async () => {
-        let res = await this.$tkParse.get('/classes/brand', {
+        let res1 = await this.$tkParse.get('/classes/brand', {
           params: {  // url参数
 
           },
         });
-        this.brands = res.data.results
-      })();
+        this.brands = res1.data.results
 
-      //fydebug@20190430这里业务逻辑和我自己想的不一样
-      //this.brands = JSON.parse(JSON.stringify(this.$getFlash('flash').brands))
-      console.log(this.shop,this.brands);
-
-      //昂，这一页和之前商品列表是差不多的，再次验证了一下查询逻辑，之前的就先不改了
-      (async () => {
-        let res = await this.$tkParse.get('/classes/model',{
+        //昂，这一页和之前商品列表是差不多的，再次验证了一下查询逻辑，之前的就先不改了
+        let res2 = await this.$tkParse.get('/classes/model',{
           params: {  // url参数
-           where:{
+            where:{
               user:this.shop.objectId
             }
           }
         });
-        this.commodity = res.data.results;
-        console.log(this.commodity)
-
-        this.brands.forEach((ni,ii)=>{
-          ni['active'] = false;
-          ni['options'] = [];
-          this.commodity.forEach((n,i)=>{
-            n.brand.indexOf(ni.name)>-1?(ni.options.push(n),ni.active = true):'';
-          })
-        })
-
+        this.commodity = res2.data.results;
+        re(this.brands,this.commodity)
       })();
     },
     methods:{

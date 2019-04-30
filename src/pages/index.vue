@@ -164,7 +164,7 @@ export default {
               var citybounds = result.bounds;
 
               //用的城市定位，这里的话 如果是城市选择页过来的就带上城市选择页面的数据,
-              that.$getFlash('city')? this.city = this.$getFlash('city').cityName:(()=>{
+              that.$getFlash('city')? that.city = that.$getFlash('city').cityName:(()=>{
                 that.city = cityinfo;
                 that.center[0] = (result.bounds.Kb.lat+result.bounds.Rb.lat)/2;
                 that.center[1] = (result.bounds.Kb.lng+result.bounds.Rb.lng)/2

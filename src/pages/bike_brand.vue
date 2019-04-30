@@ -8,7 +8,8 @@
     </tkui-header>
 
     <tkui-list v-if="shop && shop.objectId && commodity && commodity.length>0">
-      <tkui-list-item divider v-for="opt in commodity">
+      <span @click="goNewBike(opt)" v-for="opt in commodity">
+        <tkui-list-item  divider >
         <img slot="left" v-bind:src="opt.tagImg" class="avatar" />
         <div class="content" >
           <div class="title">{{opt.modelName}}</div>
@@ -16,6 +17,7 @@
           <div class="price">¥{{opt.price}}</div>
         </div>
       </tkui-list-item>
+      </span>
     </tkui-list>
 
     <tkui-list v-else>
@@ -73,6 +75,17 @@
           flash:{
             flash:{
               shop:this.userInfo,
+              brands:this.$getFlash('flash').brands
+            }
+          }
+        });
+      },
+      goNewBike:function(opt){
+        this.$push({
+          path:'/new-bike',
+          flash:{
+            flash:{
+              bike:opt,
               brands:this.$getFlash('flash').brands
             }
           }

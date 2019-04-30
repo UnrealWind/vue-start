@@ -71,6 +71,8 @@ export default {
         let res = await this.$tkParse.post('/login', {
           username: this.username,
           password: this.password
+        }).catch(e => {
+          this.$refs.toast.add('登录失败！请重试！');
         });
         return res;
       })();
@@ -82,7 +84,9 @@ export default {
         let res = await this.$tkParse.post('/loginByPhone', {
           phone: this.phone,
           code: this.code
-        });
+        }).catch(e => {
+          this.$refs.toast.add('登录失败！请重试！');
+        });;
         return res;
       })();
     },
@@ -90,7 +94,6 @@ export default {
       let jud = this.$refs.form_all.validate();
       let that = this;
       function jump(res){
-
         //这里还用了200校验的原因是，不太清楚后台会不会返回 status = '404' 这种状态码和实际场景不符的骚操作，
         res.status == '200'|| res.status =='201'?(
             that.$store.commit('setSessionToken',res.data.sessionToken),
