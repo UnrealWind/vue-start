@@ -1,6 +1,8 @@
 <template>
   <tk-container>
     <tkui-header center>
+      <tkui-button slot="left" class="icon" v-on:click="back()">
+        <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>商家主页
     </tkui-header>
 
@@ -25,12 +27,12 @@
     </tkui-list>
 
     <tkui-list>
-      <span @click="gobikeList()">
+      <!--<span @click="gobikeList()">
         <tkui-list-item>
           库存品牌
           <tk-icon color="#666" slot="right">return1</tk-icon>
         </tkui-list-item>
-      </span>
+      </span>-->
       <span @click="goShopAddress()">
         <tkui-list-item>
           我的店铺
@@ -119,6 +121,9 @@ export default {
         })
       })
       return brand;
+    },
+    back:function(){
+      this.$back();
     }
   }
 }

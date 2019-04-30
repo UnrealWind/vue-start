@@ -107,7 +107,9 @@ export default {
           that.$push('/')
         }):this.userLogin().then(res=>{
           jump(res);
-          that.$push('/merchant-index')
+
+          //这里业务逻辑让跳转这个页面为第一个页面
+          that.$push('/bike-list')
         }):'';
     },
 

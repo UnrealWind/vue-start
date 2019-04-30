@@ -8,7 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "@moke/vue-tk": "^0.17.7",
+    "@moke/vue-tk": "^0.17.14",
     "@moke/vue-tkui": "^0.4.7",
     "babel-polyfill": "^6.26.0",
     "vue": "^2.6.6",

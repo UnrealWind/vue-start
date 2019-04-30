@@ -2,7 +2,7 @@
   <tk-container class="shop">
     <tkui-header background="white" color="#333" center>
       <tkui-button slot="left" class="icon" v-on:click="back()">
-        <tk-icon material>keyboard_arrow_left</tk-icon>
+        <tk-icon>me1</tk-icon>
       </tkui-button>
       库存列表
     </tkui-header>
@@ -45,8 +45,17 @@
       var that = this;
       this.shop = this.$store.state.user;
 
-      //做的有点着急了，
-      this.brands = JSON.parse(JSON.stringify(this.$getFlash('flash').brands))
+      (async () => {
+        let res = await this.$tkParse.get('/classes/brand', {
+          params: {  // url参数
+
+          },
+        });
+        this.brands = res.data.results
+      })();
+
+      //fydebug@20190430这里业务逻辑和我自己想的不一样
+      //this.brands = JSON.parse(JSON.stringify(this.$getFlash('flash').brands))
       console.log(this.shop,this.brands);
 
       //昂，这一页和之前商品列表是差不多的，再次验证了一下查询逻辑，之前的就先不改了
@@ -73,12 +82,12 @@
     },
     methods:{
       back:function(){
-        this.$back();
+        this.$push('/merchant-index');
       },
       goBikeBrand:function(opt){
         this.$setFlash('flash',{
           shop:this.userInfo,
-          brands:this.$getFlash('flash').brands
+          brands:this.brands
         });
         this.$push('/bike-brand');
       },
@@ -88,7 +97,7 @@
           flash:{
             flash:{
               shop:this.userInfo,
-              brands:this.$getFlash('flash').brands
+              brands:this.brands
             }
           }
         });
