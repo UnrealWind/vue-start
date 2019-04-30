@@ -97,7 +97,10 @@ export default {
   }
   .tab {
     position: absolute;
-    margin: 8rem 2rem 0 2rem;
+
+    /*这个挺好用的,记一笔*/
+    left:calc((100% - 345px)/2);
+    margin: 8rem auto;
     width: 345px;
     height: 112px;
     background-color: rgba(255, 255, 255, 1);

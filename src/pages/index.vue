@@ -89,6 +89,9 @@ export default {
         this.shop.forEach((n,i)=>{
           n['position'] = that.getPosition([n.location.latitude,n.location.longitude])
         })
+
+        this.shop.sort(function(a,b){
+          return a.position-b.position});
       })();
     },
     goShopPage:function(opt){
