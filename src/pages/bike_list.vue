@@ -7,14 +7,16 @@
       库存列表
     </tkui-header>
 
-    <tkui-list v-if=" shop && shop.objectId && commodity && commodity.length>0">
-      <tkui-list-item divider v-if="opt.active" v-for="(opt,index) in brands">
+    <tkui-list v-if=" shop && shop.objectId">
+      <span v-for="brand in shop.mainBrand">
+        <tkui-list-item divider v-if="brand == opt.objectId"  v-for="(opt,index) in brands">
         <img slot="left" v-bind:src="opt.logo" class="avatar" />
         <div class="content"  v-on:click="goBikeBrand(opt)">
           <div class="title">{{opt.name}}</div>
-          <div class="des"><span v-for="(info,index) in opt.options"><span v-if="index != 0">、</span>{{info.modelName}}</span></div>
+          <div class="des"><span v-if="opt.objectId == info.brand" v-for="(info,index) in commodity">{{info.modelName}}</span></div>
         </div>
       </tkui-list-item>
+      </span>
     </tkui-list>
 
     <tkui-list v-else>
@@ -44,17 +46,7 @@
     mounted:function(){
       var that = this;
       this.shop = this.$store.state.user;
-
-      let re = (arr1,arr2)=>{
-        arr1.forEach((ni,ii)=>{
-          ni['active'] = false;
-          ni['options'] = [];
-          arr2.forEach((n,i)=>{
-            n.brand.indexOf(ni.name)>-1?(ni.options.push(n),ni.active = true):'';
-          })
-        })
-      };
-
+console.log(this.shop);
       //fydebug@20190430这里业务逻辑和我自己想的不一样
       //this.brands = JSON.parse(JSON.stringify(this.$getFlash('flash').brands))
       (async () => {
@@ -74,7 +66,7 @@
           }
         });
         this.commodity = res2.data.results;
-        re(this.brands,this.commodity)
+        console.log(this.brands)
       })();
     },
     methods:{
@@ -84,7 +76,8 @@
       goBikeBrand:function(opt){
         this.$setFlash('flash',{
           shop:this.userInfo,
-          brands:this.brands
+          brands:this.brands,
+          brand:opt
         });
         this.$push('/bike-brand');
       },
@@ -122,6 +115,7 @@
     text-align:center;
     background:rgba(0, 145, 255, 1);
     color:#fff;
+    z-index:999;
   }
 
   .content {
@@ -150,6 +144,9 @@
         .des {
           font-size:0.75rem;
           color:#aaa;
+          >span {
+            margin-right:0.5rem;
+          }
         }
         .price {
           color:red;

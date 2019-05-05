@@ -30,7 +30,10 @@
         </div>
       </div>
     </tkui-list>
-    <tkui-button primary raised big block @click="commit()">提交</tkui-button>
+    <span>
+      <tkui-button v-if='btnType' primary raised big block @click="commit()">提交</tkui-button>
+      <tkui-button v-else primary raised big block disabled>图片上传中……</tkui-button>
+    </span>
     <tk-toast ref="toast"></tk-toast>
   </tk-container>
 </template>
@@ -50,7 +53,8 @@
         price:0,
         des:'',
         brand:'',
-        brands:null
+        brands:null,
+        btnType:true,
       }
     },
     computed:{
@@ -81,7 +85,10 @@
       back:function(){
         this.$back();
         this.$setFlash('flash',{
-          brands:this.$getFlash('flash').brands
+          brands:this.$getFlash('flash').brands,
+          brand: {
+            objectId:this.brand
+          }
         });
       },
       pick() {
@@ -90,14 +97,18 @@
           from: this.from
         })
           .then(file => {
-            this.file = file
+            (async()=>{
+              this.btnType = false;
+              let res1 = await this.$tkParse.post('/files',file.buffer);
+              this.file = res1.data;
+              this.btnType = true;
+            })();
           })
           .catch(e => {
             window.alert(e.message)
           })
       },
       commit(){
-
           !this.$getFlash('flash').bike?(async ()=>{
               let res = await this.$tkParse.post('/classes/model', {
                 user:this.userInfo.objectId,

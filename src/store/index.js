@@ -30,6 +30,9 @@ const store = new Vuex.Store({
         !has?state.cart[cart.shop.objectId].push(cart):'';
       })();
     },
+    add(state,msg){
+      state.user[msg.key] = msg.value;
+    },
     resetCart(state,cart){
       state.cart =cart;
     },

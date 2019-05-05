@@ -41,19 +41,21 @@
       return {
         shop:{},
         commodity:[],
+        brand:null
       }
     },
     mounted:function(){
       var that = this;
       this.shop = this.$store.state.user;
-      console.log(this.shop);
-
+      this.brand = this.$getFlash('flash').brand;
+      console.log(this.brand);
       //昂，这一页和之前商品列表是差不多的，再次验证了一下查询逻辑，之前的就先不改了
       (async () => {
         let res = await this.$tkParse.get('/classes/model',{
           params: {  // url参数
            where:{
-              user:this.shop.objectId
+              user:this.shop.objectId,
+              brand:this.brand.objectId,
             }
           }
         });
@@ -114,6 +116,7 @@
     text-align:center;
     background:rgba(0, 145, 255, 1);
     color:#fff;
+    z-index:999;
   }
 
   .content {

@@ -17,8 +17,8 @@
           <div class="tkui-input-body">
 
            <tk-flex class="img-wrap" middle center @click.native="pick">
-              <div class="md-subheading" v-if="!file">拍照上传</div>
-              <img v-else class="tiny-img" :src="file.url"  />
+              <div class="md-subheading" v-if="!file || !file.url">拍照上传</div>
+              <img v-else class="tiny-img" :src="file.url" />
             </tk-flex>
           </div>
         </div>
@@ -50,7 +50,9 @@ export default {
     return {
       type: 'image',
       from: 'camera',
-      file: null,
+      file: {
+        url:null
+      },
       mapShow:true,
       shopName:'',
       address:'',
@@ -75,11 +77,11 @@ export default {
         }
       })
       console.log(res)
-      res.status == '200'?(async()=>{
+      res.status == '200' && res.data.results.length>0?(async()=>{
         this.shopName = res.data.results[0].shopName;
         this.location = res.data.results[0].location;
         this.address = res.data.results[0].txtLocation;
-        !this.file?(this.file = {},this.file['url'] = res.data.results[0].storePhoto):'';
+        !this.file.url?this.file['url'] = res.data.results[0].storePhoto:'';
         this.shopId = res.data.results[0].objectId;
       })():''
 
@@ -92,49 +94,48 @@ export default {
   },
   methods:{
     save:function(){
+      let url,method;
+      this.shopId? (url= '/classes/shop/'+this.shopId,method = 'put'):(url = '/classes/shop',method='post');
       !this.location || !this.location.latitude ?
-        this.$refs.toast.add('请选择更详细的的地址！'):
+        this.$refs.toast.add('请在地图上选择您的店铺位置！'):
         (async()=>{
-          let res = await this.$tkParse.put('/classes/shop/'+this.shopId,{
+          let res = await this.$tkParse[method](url,{
+            user:this.$store.state.user.objectId,
             location:this.location,
             shopName:this.shopName,
-            storePhoto:this.file.url|| null,
+            storePhoto:this.file.url,
             txtLocation:this.address,
           })
-          res.status == '200' ||  res.status == '201'?this.$refs.toast.add('店铺修改成功！'):'';
+          res.status == '200' ||  res.status == '201'?(this.$refs.toast.add('店铺修改成功！'),this.shopId = res.data.objectId):'';
        })();
     },
     init:function(){
       var that = this;
+
       var map = new AMap.Map("container", {
-        resizeEnable: true
+        resizeEnable: true,
+        zoom:13
       });
-
-      AMap.plugin(["AMap.Geolocation","AMap.CitySearch","AMap.Autocomplete","AMap.PlaceSearch"], function() {
-        // 实例化Autocomplete
-        var autoOptions = {
-          city: '全国',
-          input: "tipinput"
-        }
-
-        var autoComplete = new AMap.Autocomplete(autoOptions);
-        var placeSearch = new AMap.PlaceSearch({
-          map: map
-        });  //构造地点查询类
-        AMap.event.addListener(autoComplete, "select", select);//注册监听，当选中某条记录时会触发
-        function select(e) {
-          placeSearch.setCity(e.poi.adcode);
-          placeSearch.search(e.poi.name);  //关键字查询查询+
-          !e.poi.location?that.$refs.toast.add('请选择更详细的的地址！'):that.$refs.toast.add('定位成功');
-          that.location = {
-            __type: "GeoPoint",
-            latitude:e.poi.location.lat,
-            longitude:e.poi.location.lng
-          };
-          that.address = e.poi.name;
-
-        }
+      //为地图注册click事件获取鼠标点击出的经纬度坐标
+      map.on('click', function(e) {
+        !e.lnglat?that.$refs.toast.add('请选择更详细的的地址！'):that.$refs.toast.add('定位成功');
+        that.location = {
+          __type: "GeoPoint",
+          latitude:e.lnglat.lat,
+          longitude:e.lnglat.lng
+        };
       });
+      /*var auto = new AMap.Autocomplete({
+        input: "tipinput"
+      });
+      AMap.event.addListener(auto, "select", select);//注册监听，当选中某条记录时会触发*/
+      function select(e) {
+        if (e.poi && e.poi.location) {
+          map.setZoom(15);
+          map.setCenter(e.poi.location);
+        }
+      }
+
     },
     back:function(){
       this.$back();
@@ -145,7 +146,11 @@ export default {
         from: this.from
       })
         .then(file => {
-          this.file = file
+          (async()=>{
+            let res1 = await this.$tkParse.post('/files',file.buffer);
+            this.file = res1.data;
+          })();
+
         })
         .catch(e => {
           window.alert(e.message)

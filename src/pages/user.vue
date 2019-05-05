@@ -4,10 +4,11 @@
     <div class="header">
       <span  @click="goPersional()">
         <tk-avatar  @click="goPersional()" size="64">
-          <tk-image src="http://moke-store.oss-cn-beijing.aliyuncs.com/5166583b-0ee1-4808-84a4-280abdfa9c2f.png" width="100" height="100"></tk-image>
+          <tk-image v-if="!userInfo.avatar" src="http://moke-store.oss-cn-beijing.aliyuncs.com/5166583b-0ee1-4808-84a4-280abdfa9c2f.png" width="100" height="100"></tk-image>
+          <tk-image v-else :src="userInfo.avatar" width="100" height="100"></tk-image>
         </tk-avatar>
       </span>
-      <h2  @click="goPersional()">{{userInfo.phone}}</h2>
+      <h2  @click="goPersional()">{{userInfo.username}}</h2>
       <div class="setting"  @click="goPersional()">
         <tk-icon color="#fff" material>settings</tk-icon>
       </div>
@@ -52,7 +53,7 @@ export default {
 
   },
   mounted:function(){
-    this.userInfo = this.$store.state.user
+    this.userInfo = this.$store.state.user;
   },
   methods:{
     goOrderList:function(type){
@@ -86,7 +87,7 @@ export default {
       color: #fff;
       font-size: 1.3rem;
       font-weight: 300;
-      margin-left: 2rem;
+      margin-left: 1.52rem;
     }
     .setting {
       position: absolute;

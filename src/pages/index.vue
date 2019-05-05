@@ -1,42 +1,44 @@
 <template>
   <tk-container  class="index">
-    <tkui-header center>
-      <tkui-button  @click="goCityChose()" slot="left" class="icon">
-        <tk-icon>Positioning</tk-icon>
-      </tkui-button>
-      <span slot="left" class="city">{{city}}</span>
-      <tkui-search-input v-model="search" place-holder="输入搜索内容" class="fill"></tkui-search-input>
-      <div slot="right">
-        <tkui-button @click="scan" class="icon">
-          <tk-icon>Scan</tk-icon>
+      <tkui-header center>
+        <tkui-button  @click="goCityChose()" slot="left" class="icon">
+          <tk-icon>Positioning</tk-icon>
         </tkui-button>
-      </div>
-    </tkui-header>
-    <tk-slider loop autoPlay>
-      <div class="slider-item" v-for="image, index in imgs" :key="index">
-        <tk-image style="width: 100%;" :src="image.image" width="1200" height="600"></tk-image>
-      </div>
-    </tk-slider>
-    <tk-image height="50" :src="speImg"></tk-image>
+        <span slot="left" class="city">{{city}}</span>
+        <tkui-search-input v-model="search" place-holder="输入搜索内容" class="fill"></tkui-search-input>
+        <div slot="right">
+          <tkui-button @click="scan" class="icon">
+            <tk-icon>Scan</tk-icon>
+          </tkui-button>
+        </div>
+      </tkui-header>
 
-    <tkui-list>
-      <tkui-list-item divider v-for="opt in shop" v-if="opt.shopName.indexOf(search)>-1">
-        <img slot="left" v-bind:src="opt.storePhoto" class="avatar" />
-        <div class="content" v-on:click="goShopPage(opt)">
-          <div class="title">{{opt.shopName}}
-            <span class="pull-right">距离：{{opt.position}}km</span>
-          </div>
-          <div class="des">{{opt.txtLocation}}</div>
-          <div class="btn-box">
+      <tk-slider loop autoPlay>
+        <div class="slider-item" v-for="image, index in imgs" :key="index">
+          <tk-image style="width: 100%;" :src="image.image" width="1200" height="600"></tk-image>
+        </div>
+      </tk-slider>
+
+      <tk-image height="50" :src="speImg"></tk-image>
+
+      <tkui-list>
+        <tkui-list-item divider v-for="opt in shop" v-if="opt.shopName.indexOf(search)>-1">
+          <img slot="left" v-bind:src="opt.storePhoto" class="avatar" />
+          <div class="content" v-on:click="goShopPage(opt)">
+            <div class="title">{{opt.shopName}}
+              <span class="pull-right">距离：{{opt.position}}km</span>
+            </div>
+            <div class="des">{{opt.txtLocation}}</div>
+            <div class="btn-box">
               <span v-for="tagBrand in opt.user.mainBrand">
               <tkui-button raised rounded primary small disabled v-for="brand in brands" v-if="tagBrand == brand.objectId">{{brand.name}}</tkui-button>
             </span>
+            </div>
           </div>
-        </div>
-      </tkui-list-item>
-    </tkui-list>
-    <tk-scaner ref="scaner" :filter="checkResult" color="color"></tk-scaner>
-    <div v-if="mapShow" id="container" style="width:500px; height:300px;display:none;"></div>
+        </tkui-list-item>
+      </tkui-list>
+      <tk-scaner ref="scaner" :filter="checkResult" color="color"></tk-scaner>
+      <div v-if="mapShow" id="container" style="width:500px; height:300px;display:none;"></div>
   </tk-container>
 </template>
 
@@ -53,18 +55,35 @@ export default {
       mapShow:true,
       city:'加载中',
       position:{},
-      center:[],
-      search:''
+      location:[],
+      search:'',
+      column: true,
+      wrap: false,
+      left: false,
+      center: true,
+      right: false,
+      top: false,
+      middle: true,
+      bottom: false,
+      baseline: false,
+      average: false,
+      wrapGutter: false,
+      between: false,
+      around: false,
+      stretch: true,
+      gutter: '8'
     }
   },
   mounted:function(){
-    this.getLocal();
-    this.init();
+    this.getLocal().then(()=>{
+      this.init();
+    });
   },
   methods:{
     init:function(){
       let that = this;
       //这里拿到了所有数据然后在模板上进行匹配的，感觉可能是我这个查询用的有问题
+      // 这里获取数据可以放在一个 async里进行，
       (async () => {
         let res = await this.$tkParse.get('/classes/slider', {});
         this.imgs = res.data.results;
@@ -111,74 +130,19 @@ export default {
           console.log(e.message) // 错误说明
         })
     },
-    getLocal:function(){
-      let that = this;
-      var map = new AMap.Map('container', {
-        resizeEnable: true
-      });
+    async getLocal(){
 
-      var options = {
-        'showButton': true,//是否显示定位按钮
-        'buttonPosition': 'LB',//定位按钮的位置
-        /* LT LB RT RB */
-        'buttonOffset': new AMap.Pixel(10, 20),//定位按钮距离对应角落的距离
-        'showMarker': true,//是否显示定位点
-        'markerOptions':{//自定义定位点样式，同Marker的Options
-          'offset': new AMap.Pixel(-18, -36),
-          'content':'<img src="https://a.amap.com/jsapi_demos/static/resource/img/user.png" style="width:36px;height:36px"/>'
-        },
-        'showCircle': true,//是否显示定位精度圈
-        'circleOptions': {//定位精度圈的样式
-          'strokeColor': '#0093FF',
-          'noSelect': true,
-          'strokeOpacity': 0.5,
-          'strokeWeight': 1,
-          'fillColor': '#02B0FF',
-          'fillOpacity': 0.25
-        }
-      }
-
-      AMap.plugin(["AMap.Geolocation","AMap.CitySearch"], function() {
-        var geolocation = new AMap.Geolocation(options);
-        map.addControl(geolocation);
-        geolocation.getCurrentPosition(function(status,result){
-
-          //精确定位炸了，昨天还能用   fydebug@20190426
-          if(status=='complete'){
-            //onComplete(result)
-          }else{
-            //onError(result)
-          }
-        });
-      });
-
-      (function showCityInfo() {
-
-        //实例化城市查询类
-        var citysearch = new AMap.CitySearch();
-        //自动获取用户IP，返回当前城市
-        citysearch.getLocalCity(function(status, result) {
-          if (status === 'complete' && result.info === 'OK') {
-            if (result && result.city && result.bounds) {
-              var cityinfo = result.city;
-              var citybounds = result.bounds;
-
-              //用的城市定位，这里的话 如果是城市选择页过来的就带上城市选择页面的数据,
-              that.$getFlash('city')? that.city = that.$getFlash('city').cityName:(()=>{
-                that.city = cityinfo;
-                that.center[0] = (result.bounds.Kb.lat+result.bounds.Rb.lat)/2;
-                that.center[1] = (result.bounds.Kb.lng+result.bounds.Rb.lng)/2
-              })();
-              //地图显示当前城市
-              map.setBounds(citybounds);
-            }
-          } else {
-            //code
-          }
-        });
-      })();
+      //不知道为啥定唐县了,这个api用法应该是这样的
+        let position = await this.$tkGeolocation.getCurrentPosition({
+          parse:true,
+          enableHighAccuracy:true
+        })
+        this.city = position.name;
+        this.location = [position.latitude,position.longitude];
+        console.log(position)
     },
     getPosition:function(posi1){
+      var that = this;
       function distance( lat1,  lng1,  lat2,  lng2){
         var radLat1 = lat1*Math.PI / 180.0;
         var radLat2 = lat2*Math.PI / 180.0;
@@ -192,7 +156,7 @@ export default {
       };
 
       return (function(){
-        return distance(posi1[0],posi1[1],(37.86302147+38.22308595)/2,(114.2195964+114.7912716)/2)
+        return distance(posi1[0],posi1[1],that.location[0],that.location[1])
       })();
 
     },

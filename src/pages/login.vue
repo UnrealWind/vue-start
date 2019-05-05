@@ -1,9 +1,6 @@
 <template>
   <tk-container class="login">
     <tkui-header background="white" color="#333" center>
-      <tkui-button slot="left" class="icon">
-        <tk-icon material>keyboard_arrow_left</tk-icon>
-      </tkui-button>
       登录
     </tkui-header>
     <div class="tab-bar">
@@ -61,7 +58,7 @@ export default {
         function(value) {
 
         }
-      ]
+      ],
     }
   },
   methods:{
