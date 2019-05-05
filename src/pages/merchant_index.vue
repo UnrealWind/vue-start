@@ -114,6 +114,7 @@ export default {
     getBrands:function(){
       let that = this;
       let brand = JSON.parse(JSON.stringify(this.mainBrand));
+      !that.userInfo.mainBrand?that.userInfo.mainBrand = []:'';
       brand.forEach((n,i)=>{
         !n['active']?n['active'] = false:'';
         that.userInfo.mainBrand.forEach((ni,ii)=>{

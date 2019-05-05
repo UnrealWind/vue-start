@@ -27,7 +27,7 @@
     </tkui-list>
     <tk-flex wrap class="qrcode">
       <div class="item tk-grid-3"><h4>订单码</h4></div>
-      <div class="item tk-grid-9"><tk-qrcode value="宝宝贝~~~"></tk-qrcode></div>
+      <div class="item tk-grid-9"><tk-qrcode :value="cart_objectId"></tk-qrcode></div>
       <div class="item tk-grid-3"><h4>合计实付款：</h4></div>
       <div class="item tk-grid-9 red">¥{{totalPrice}}</div>
     </tk-flex>
@@ -42,7 +42,8 @@ export default {
     return {
       cart:{},
       totalPrice:0,
-      paidStatus:''
+      paidStatus:'',
+      cart_objectId:this.$getFlash('flash').cart_objectId
     }
   },
   activated:function(){

@@ -22,7 +22,7 @@
       <tk-image height="50" :src="speImg"></tk-image>
 
       <tkui-list>
-        <tkui-list-item divider v-for="opt in shop" v-if="opt.shopName.indexOf(search)>-1">
+        <tkui-list-item divider v-for="opt in shop" v-if="opt && opt.shopName.indexOf(search)>-1">
           <img slot="left" v-bind:src="opt.storePhoto" class="avatar" />
           <div class="content" v-on:click="goShopPage(opt)">
             <div class="title">{{opt.shopName}}
@@ -38,7 +38,7 @@
         </tkui-list-item>
       </tkui-list>
       <tk-scaner ref="scaner" :filter="checkResult" color="color"></tk-scaner>
-      <div v-if="mapShow" id="container" style="width:500px; height:300px;display:none;"></div>
+      <tk-toast ref="toast"></tk-toast>
   </tk-container>
 </template>
 
@@ -90,20 +90,21 @@ export default {
       })();
       (async () => {
         let res = await this.$tkParse.get('/classes/brand', {
-          /* params: {  // url参数
+           params: {  // url参数
              include: 'user',
-           }*/
+           }
         });
-        this.brands = res.data.results;
       })();
       (async () => {
         let res = await this.$tkParse.get('/classes/shop', {
-          params: {  // url参数
-            include: 'user', // 如果有多个关联都需要查询，用英文逗号分隔,例如：'pointer1,pointer2'
+          params: {
+            include: 'user',
+            where:{
+             // objectId: this.$store.state.user.objectId
+            }
           }
         })
         this.shop = res.data.results;
-
         //获取数据的时候算一下距离
         this.shop.forEach((n,i)=>{
           n['position'] = that.getPosition([n.location.latitude,n.location.longitude])
@@ -121,6 +122,15 @@ export default {
     },
     checkResult(result) {
       // 对result进行判断，当返回true时,扫码成功，扫描器关闭
+      this.$refs.scaner.close();
+      result?(async()=>{
+        this.$push('/cart-detail');
+        this.$setFlash('flash',{
+          cart_objectId:result,
+        });
+      })():this.$refs.toast.add('扫码失败！请重试');
+
+
     },
     async scan() {
       // scanResult 为成功扫描后返回的数据
@@ -129,13 +139,16 @@ export default {
           console.log(e.type) // 错误类型, cancel 代表用户主动取消扫码， error代表其他错误
           console.log(e.message) // 错误说明
         })
+      /*this.$push('/cart-detail');
+      this.$setFlash('flash',{
+        cart_objectId:scanResult,
+      });*/
     },
     async getLocal(){
 
       //不知道为啥定唐县了,这个api用法应该是这样的
         let position = await this.$tkGeolocation.getCurrentPosition({
           parse:true,
-          enableHighAccuracy:true
         })
         this.city = position.name;
         this.location = [position.latitude,position.longitude];
@@ -228,7 +241,7 @@ export default {
 
   .city {
     /*display: inline-flex;*/
-    font-size:0.5rem;
+    font-size:0.8rem;
     width:3rem;
     position:absolute;
     top:1rem;

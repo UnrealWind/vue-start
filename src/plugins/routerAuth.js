@@ -23,7 +23,8 @@ const auth = [{
 }]
 
 routerAuth.then(function(res){
-  /*VueTk.history.init(router,{
+  /*fydebug 这个用过之后 flash就炸了
+  VueTk.history.init(router,{
     transitionMode:"always"
   });*/
   res == 'success'?(VueTk.tkRouterAuth.init(auth, router),VueTk.history.replace('/')):(VueTk.tkRouterAuth.init(auth, router),VueTk.history.replace('/login'))

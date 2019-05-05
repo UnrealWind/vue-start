@@ -64,7 +64,6 @@ export default {
 
   },
   mounted:function(){
-    this.init();
 
     //我记得当初我这样查询过并没能查到单条数据，所以之前的页面使用objectid自己匹配的，这次试了一下居然直接能查出来，有点迷
     //前面的就不改了，
@@ -84,8 +83,9 @@ export default {
         !this.file.url?this.file['url'] = res.data.results[0].storePhoto:'';
         this.shopId = res.data.results[0].objectId;
       })():''
-
+      this.init();
     })();
+
   },
   computed: {
     isImage() {
@@ -116,6 +116,21 @@ export default {
         resizeEnable: true,
         zoom:13
       });
+      this.location.latitude?(()=>{
+          var markers = [{
+            icon: '//a.amap.com/jsapi_demos/static/demo-center/icons/poi-marker-1.png',
+            position: [this.location.longitude,this.location.latitude]
+          }];
+          markers.forEach(function(marker) {
+            new AMap.Marker({
+              map: map,
+              icon: marker.icon,
+              position: [marker.position[0], marker.position[1]],
+              offset: new AMap.Pixel(-13, -30)
+            });
+          });
+        })():'';
+
       //为地图注册click事件获取鼠标点击出的经纬度坐标
       map.on('click', function(e) {
         !e.lnglat?that.$refs.toast.add('请选择更详细的的地址！'):that.$refs.toast.add('定位成功');
@@ -124,18 +139,22 @@ export default {
           latitude:e.lnglat.lat,
           longitude:e.lnglat.lng
         };
-      });
-      /*var auto = new AMap.Autocomplete({
-        input: "tipinput"
-      });
-      AMap.event.addListener(auto, "select", select);//注册监听，当选中某条记录时会触发*/
-      function select(e) {
-        if (e.poi && e.poi.location) {
-          map.setZoom(15);
-          map.setCenter(e.poi.location);
-        }
-      }
 
+        markers = [{
+          icon: '//a.amap.com/jsapi_demos/static/demo-center/icons/poi-marker-1.png',
+          position: [ e.lnglat.lng,e.lnglat.lat]
+        }];
+        map.clearMap();
+        markers.forEach(function(marker) {
+          new AMap.Marker({
+            map: map,
+            icon: marker.icon,
+            position: [marker.position[0], marker.position[1]],
+            offset: new AMap.Pixel(-13, -30)
+          });
+        });
+
+      });
     },
     back:function(){
       this.$back();

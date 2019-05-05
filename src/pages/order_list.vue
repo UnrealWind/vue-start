@@ -15,7 +15,7 @@
               </h2>
             </div>
             <tkui-list-item disableHover divider >
-              <img slot="left"  v-for="shop in order.detail" v-bind:src="shop.tagimg" class="avatar" />
+              <img slot="left" v-if="shop && shop.tagimg" v-for="shop in order.detail" v-bind:src="shop.tagimg" class="avatar" />
               <div class="content"  >
                 <div class="price gray" >共{{order.detail.length}}件商品，实付款：¥{{order.price}}
                 </div>
@@ -28,12 +28,12 @@
         <span v-if=" order.status == 'unpaid'" @click="goCartDetail(order)"  v-for="order in orders">
           <tkui-list>
             <div class="list-header" >
-              <h2><span v-for="(shop,index) in order.detail"><span v-if="index !== 0">、</span>{{shop.shop.shopName}}</span>
+              <h2><span>{{order.titleName}}</span>
                 <span class="pull-right" v-bind:class="{ gray: order.status !== 'complete'}">{{order.paidStatus}}</span>
               </h2>
             </div>
             <tkui-list-item disableHover divider >
-              <img slot="left"  v-for="shop in order.detail" v-bind:src="shop.tagimg" class="avatar" />
+              <img slot="left" v-if="shop &&shop.tagimg" v-for="shop in order.detail" v-bind:src="shop.tagimg" class="avatar" />
               <div class="content"  >
                 <div class="price gray" >共{{order.detail.length}}件商品，实付款：¥{{order.price}}
                 </div>
@@ -46,12 +46,12 @@
         <span v-if="order.status == 'complete'" @click="goCartDetail(order)"  v-for="order in orders">
           <tkui-list>
             <div class="list-header" >
-              <h2><span v-for="(shop,index) in order.detail"><span v-if="index !== 0">、</span>{{shop.shop.shopName}}</span>
+              <h2><span>{{order.titleName}}</span>
                 <span class="pull-right" v-bind:class="{ gray: order.status !== 'complete'}">{{order.paidStatus}}</span>
               </h2>
             </div>
             <tkui-list-item disableHover divider >
-              <img slot="left"  v-for="shop in order.detail" v-bind:src="shop.tagimg" class="avatar" />
+              <img slot="left" v-if="shop &&shop.tagimg"  v-for="shop in order.detail" v-bind:src="shop.tagimg" class="avatar" />
               <div class="content"  >
                 <div class="price gray" >共{{order.detail.length}}件商品，实付款：¥{{order.price}}
                 </div>
@@ -64,12 +64,12 @@
         <span v-if=" order.status == 'close'" @click="goCartDetail(order)"  v-for="order in orders">
           <tkui-list>
             <div class="list-header" >
-              <h2><span v-for="(shop,index) in order.detail"><span v-if="index !== 0">、</span>{{shop.shop.shopName}}</span>
+              <h2><span>{{order.titleName}}</span>
                 <span class="pull-right" v-bind:class="{ gray: order.status !== 'complete'}">{{order.paidStatus}}</span>
               </h2>
             </div>
             <tkui-list-item disableHover divider >
-              <img slot="left"  v-for="shop in order.detail" v-bind:src="shop.tagimg" class="avatar" />
+              <img slot="left" v-if="shop && shop.tagimg" v-for="shop in order.detail" v-bind:src="shop.tagimg" class="avatar" />
               <div class="content"  >
                 <div class="price gray" >共{{order.detail.length}}件商品，实付款：¥{{order.price}}
                 </div>
@@ -138,7 +138,8 @@ export default {
           n['titleName'] = '';
           let titleName = {};
           n.detail.forEach((ni,ii)=>{
-            n.price += ni.price;
+            if(!ni) return;
+            ni['price']?n.price += ni.price:'';
             !titleName[ni.shop.shopName]?
               (ii==0?n['titleName']+= ni.shop.shopName:n['titleName']+= '，'+ni.shop.shopName,titleName[ni.shop.shopName] =true):'';
           })
