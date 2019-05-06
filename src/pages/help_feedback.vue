@@ -1,7 +1,7 @@
 <template>
   <tk-container>
     <tkui-header center>
-      <tkui-button slot="left" class="icon" v-on:click="back()">
+      <tkui-button slot="left" class="icon" @click="back()">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>帮助反馈
     </tkui-header>
@@ -11,7 +11,7 @@
       </tkui-list-item>
     </tkui-list>
     <tk-toast ref="toast"></tk-toast>
-    <tkui-button primary raised big block v-on:click="commit()">提交</tkui-button>
+    <tkui-button primary raised big block @click="commit()">提交</tkui-button>
   </tk-container>
 </template>
 

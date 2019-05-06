@@ -49,9 +49,6 @@ export default {
       userInfo:{}
     }
   },
-  activated:function(){
-
-  },
   mounted:function(){
     this.userInfo = this.$store.state.user;
   },
@@ -80,19 +77,19 @@ export default {
   }
   .header {
     position:absolute;
-    padding: 3rem 0 0 1rem;
+    padding: 50px 0 0 16px;
     width:100%;
     h2 {
       display: inline-flex;
       color: #fff;
-      font-size: 1.3rem;
+      font-size: 20px;
       font-weight: 300;
-      margin-left: 1.52rem;
+      margin-left: 24px;
     }
     .setting {
       position: absolute;
-      top:1rem;
-      right:1rem;
+      top:16px;
+      right:16px;
       display: inline-flex;
     }
   }
@@ -101,7 +98,7 @@ export default {
 
     /*这个挺好用的,记一笔*/
     left:calc((100% - 345px)/2);
-    margin: 8rem auto;
+    margin: 130px auto;
     width: 345px;
     height: 112px;
     background-color: rgba(255, 255, 255, 1);
@@ -111,24 +108,24 @@ export default {
     h3 {
       font-weight:300;
       border-bottom:1px solid #eee;
-      padding: 0.3rem 0.5rem;
+      padding: 5px 8px;
       .pull-left {
-        font-size:0.9rem;
+        font-size:14px;
       }
       .pull-right{
         float:right;
-        font-size:0.8rem;
-        padding: 0.21rem;
+        font-size:13px;
+        padding: 3px;
         color:#666;
       }
     }
   }
   .item {
     text-align:center;
-    padding: 0.8rem;
+    padding: 13px;
     p {
-      font-size:0.8rem;
-      padding: 0.5rem 0;
+      font-size:13px;
+      padding: 8px 0;
       color: #666;
     }
   }
@@ -136,7 +133,7 @@ export default {
   .margin-top {
     pointer-events: auto;
     position: absolute;
-    margin: 18rem 0 0 0;
+    margin: 280px 0 0 0;
     width: 100%;
 
   }

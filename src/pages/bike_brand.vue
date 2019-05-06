@@ -1,7 +1,7 @@
 <template>
   <tk-container class="shop">
     <tkui-header background="white" color="#333" center>
-      <tkui-button slot="left" class="icon" v-on:click="back()">
+      <tkui-button slot="left" class="icon" @click="back()">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>
       车型列表

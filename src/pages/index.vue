@@ -23,8 +23,8 @@
 
       <tkui-list>
         <tkui-list-item divider v-for="opt in shop" v-if="opt && opt.shopName.indexOf(search)>-1">
-          <img slot="left" v-bind:src="opt.storePhoto" class="avatar" />
-          <div class="content" v-on:click="goShopPage(opt)">
+          <tk-image slot="left"  :src="opt.storePhoto" width="1200" height="600" class="avatar"></tk-image>
+          <div class="content" @click="goShopPage(opt)">
             <div class="title">{{opt.shopName}}
               <span class="pull-right">距离：{{opt.position}}km</span>
             </div>
@@ -57,21 +57,6 @@ export default {
       position:{},
       location:[],
       search:'',
-      column: true,
-      wrap: false,
-      left: false,
-      center: true,
-      right: false,
-      top: false,
-      middle: true,
-      bottom: false,
-      baseline: false,
-      average: false,
-      wrapGutter: false,
-      between: false,
-      around: false,
-      stretch: true,
-      gutter: '8'
     }
   },
   mounted:function(){
@@ -81,38 +66,42 @@ export default {
   },
   methods:{
     init:function(){
-      let that = this;
-      //这里拿到了所有数据然后在模板上进行匹配的，感觉可能是我这个查询用的有问题
-      // 这里获取数据可以放在一个 async里进行，
-      (async () => {
+      try{
+        this.getSlider();
+        this.getBrand();
+        this.getShop();
+      }catch(e){
+        //code
+      }
+    },
+    async getSlider(){
         let res = await this.$tkParse.get('/classes/slider', {});
         this.imgs = res.data.results;
-      })();
-      (async () => {
+    },
+    async getBrand(){
         let res = await this.$tkParse.get('/classes/brand', {
-           params: {  // url参数
-             include: 'user',
-           }
+          params: {  // url参数
+            include: 'user',
+          }
         });
-      })();
-      (async () => {
+    },
+    async getShop(){
+        let that = this;
         let res = await this.$tkParse.get('/classes/shop', {
           params: {
             include: 'user',
-            where:{
-             // objectId: this.$store.state.user.objectId
-            }
           }
-        })
+        });
         this.shop = res.data.results;
+
         //获取数据的时候算一下距离
         this.shop.forEach((n,i)=>{
           n['position'] = that.getPosition([n.location.latitude,n.location.longitude])
-        })
+        });
 
         this.shop.sort(function(a,b){
-          return a.position-b.position});
-      })();
+          return a.position-b.position
+        });
     },
     goShopPage:function(opt){
       this.$setFlash('flash',{
@@ -123,14 +112,12 @@ export default {
     checkResult(result) {
       // 对result进行判断，当返回true时,扫码成功，扫描器关闭
       this.$refs.scaner.close();
-      result?(async()=>{
+      result?(()=>{
         this.$push('/cart-detail');
         this.$setFlash('flash',{
           cart_objectId:result,
         });
       })():this.$refs.toast.add('扫码失败！请重试');
-
-
     },
     async scan() {
       // scanResult 为成功扫描后返回的数据
@@ -139,22 +126,17 @@ export default {
           console.log(e.type) // 错误类型, cancel 代表用户主动取消扫码， error代表其他错误
           console.log(e.message) // 错误说明
         })
-      /*this.$push('/cart-detail');
-      this.$setFlash('flash',{
-        cart_objectId:scanResult,
-      });*/
     },
     async getLocal(){
-
       //不知道为啥定唐县了,这个api用法应该是这样的
         let position = await this.$tkGeolocation.getCurrentPosition({
           parse:true,
         })
-        this.city = position.name;
+      this.city = position.name;
         this.location = [position.latitude,position.longitude];
     },
     getPosition:function(posi1){
-      var that = this;
+      let that = this;
       function distance( lat1,  lng1,  lat2,  lng2){
         var radLat1 = lat1*Math.PI / 180.0;
         var radLat2 = lat2*Math.PI / 180.0;
@@ -167,10 +149,9 @@ export default {
         return s;
       };
 
-      return (function(){
+      return (()=>{
         return distance(posi1[0],posi1[1],that.location[0],that.location[1])
       })();
-
     },
     goCityChose(){
       this.$push({
@@ -179,9 +160,6 @@ export default {
           targetCity: this.city
         }
       })
-    },
-    showMap:function(){
-
     }
   }
 }
@@ -202,34 +180,34 @@ export default {
   }
 
   .tkui-list-item {
-    padding:0.3rem 1rem;
+    padding:5px 16px;
     .list-item-content {
       .content {
-        padding: 0.3rem;
+        padding: 5px;
         text-align:left;
         width:100%;
         .title {
-          margin-bottom:0.3rem;
+          margin-bottom:5px;
           .pull-right {
             float:right;
             display: block;
-            font-size:0.5rem;
+            font-size:8px;
             font-weight:300;
           }
         }
         .des {
-          font-size:0.75rem;
+          font-size:11px;
           color:#aaa;
         }
         .btn-box {
-          margin-top:0.3rem;
+          margin-top:5px;
           .tkui-button.small {
             width: auto;
             min-width:auto;
             height: auto;
             background-color: rgba(1, 144, 255, 0.3) !important; /*原生上有这个important无法通过权重去除*/
             border-radius: 8px;
-            font-size:0.5rem;
+            font-size:8px;
             margin-left:0;
             color: rgba(1, 144, 255, 1) !important;
           }
@@ -240,11 +218,11 @@ export default {
 
   .city {
     /*display: inline-flex;*/
-    font-size:0.8rem;
-    width:3rem;
+    font-size:12px;
+    width:40px;
     position:absolute;
-    top:1rem;
-    left:3rem;
+    top:16px;
+    left:50px;
   }
 
 </style>

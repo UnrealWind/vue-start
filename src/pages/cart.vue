@@ -6,15 +6,15 @@
         <h2>{{commoditys[0].shop.shopName}}</h2>
       </div>
       <tkui-list-item disableHover divider v-for="commodity in commoditys">
-        <img slot="left" v-bind:src="commodity.tagImg" class="avatar" />
+        <tk-image slot="left"  :src="commodity.tagImg"  class="avatar"></tk-image>
         <div class="content" >
           <div class="title">{{commodity.modelName}}</div>
           <div class="des">{{commodity.configInfo}}</div>
           <div class="price">¥{{commodity.price}}
             <div class="right">
-              <span v-on:click="calculation('-1',commodity)">-</span>
+              <span @click="calculation('-1',commodity)">-</span>
               <span>{{commodity.quantity}}</span>
-              <span v-on:click="calculation('1',commodity)">+</span>
+              <span @click="calculation('1',commodity)">+</span>
             </div>
           </div>
         </div>
@@ -34,9 +34,8 @@
           <span>合计：¥</span>{{totalPrice}}
         </h4>
       </div>
-      <tkui-button raised primary v-on:click="chopHand()">立即购买</tkui-button>
+      <tkui-button raised primary @click="chopHand()">立即购买</tkui-button>
     </div>
-    <tk-toast ref="toast"></tk-toast>
   </tk-container>
 </template>
 
@@ -52,55 +51,54 @@ export default {
       status:'loading'
     }
   },
-  activated:function(){
-    (async () => {
-      this.cart = JSON.parse(JSON.stringify(this.$store.state.cart));
-      this.calculationPrice();
-      Object.keys(this.cart).length > 0?this.status = false:this.status = 'empty';
-    })();
-  },
   mounted:function(){
-
+    this.cart = JSON.parse(JSON.stringify(this.$store.state.cart));
+    this.calculationPrice();
+    Object.keys(this.cart).length > 0?this.status = false:this.status = 'empty';
   },
   methods:{
-    chopHand:function(){
+    async chopHand(){
       if(JSON.stringify(this.cart)=='{}'){
-        this.$refs.toast.add('请先添加商品到购物车内！');
+        this.$tkGlobal.toast.add('请先添加商品到购物车内！');
         return false
       };
-      (async () => {
-        let detail = [];
 
-        //做一下详情数据
-        for(var i in this.cart){
-          this.cart[i].forEach((n,i)=>{
-            detail.push({
-              shop:{
-                shopName:n.shop.shopName,
-                objectId:n.shop.objectId
-              },
-              price:n.price,
-              tagimg:n.tagImg,
-              modelName:n.modelName,
-              configInfo:n.configInfo
-            })
+      //做一下这个购物车数据
+      let detail = this.fixCart();;
+      let res = await this.$tkParse.post('/classes/order', {
+        user:this.$store.state.user.objectId,
+        detail:detail,
+        status:'unpaid',
+        totalFee:this.totalPrice
+      })
+      this.$push('/cart-detail');
+      this.$setFlash('flash',{
+        cart_objectId:res.data.objectId,
+      });
+      this.$store.commit('resetCart',{});
+    },
+    fixCart(){
+      let detail = [];
+      //做一下详情数据
+      for(let i in this.cart){
+        this.cart[i].forEach((n,i)=>{
+          detail.push({
+            shop:{
+              shopName:n.shop.shopName,
+              objectId:n.shop.objectId
+            },
+            price:n.price,
+            tagimg:n.tagImg,
+            modelName:n.modelName,
+            configInfo:n.configInfo,
+            quantity:n.quantity
           })
-        }
-        let res = await this.$tkParse.post('/classes/order', {
-          user:this.$store.state.user.objectId,
-          detail:detail,
-          status:'unpaid',
-          totalFee:this.totalPrice
         })
-        this.$push('/cart-detail');
-        this.$setFlash('flash',{
-          cart_objectId:res.data.objectId,
-        });
-        this.$store.commit('resetCart',{});
-      })();
+      };
+      return detail;
     },
     calculationPrice:function(){
-      for(var i in this.cart){
+      for(let i in this.cart){
         this.cart[i].forEach((n,i)=>{
           this.totalPrice += n.price*n.quantity;
         })
@@ -130,53 +128,53 @@ export default {
   }
 
   .list-header {
-    padding: 0 1rem;
-    font-size: 0.8rem;
-    margin-top:1rem;
+    padding: 0 16px;
+    font-size: 12px;
+    margin-top:16px;
     h2 {
-      padding: 0.5rem 0;
+      padding: 8px 0;
     }
   }
 
   .tkui-list-item {
-    padding:0.3rem 1rem;
+    padding:5px 16px;
     .list-item-content {
       .content {
-        padding: 0.3rem;
+        padding: 5px;
         text-align:left;
         width:100%;
         .title {
-          margin-bottom:0.3rem;
+          margin-bottom:5px;
           .pull-right {
             float:right;
             display: block;
-            font-size:0.5rem;
+            font-size:8px;
             font-weight:300;
           }
         }
         .des {
-          font-size:0.75rem;
+          font-size:11px;
           color:#aaa;
         }
         .price {
           color:red;
-          margin-top:0.3rem;
+          margin-top:5px;
           .right{
             float:right;
             border:0;
             span {
               display: inline-block;
-              width:1.5rem;
-              height:1.5rem;
+              width:24px;
+              height:24px;
               background-color: #eee;
-              padding: 0.1rem;
+              padding: 2px;
               text-align: center;
-              font-size:1.2rem;
+              font-size:18px;
               color:#666;
             }
             span:nth-child(2) {
               background: #fff;
-              font-size:0.8rem;
+              font-size:12px;
             }
           }
         }
@@ -187,15 +185,15 @@ export default {
   .fix-footer-addin {
     background-color: #fff;
     width: 100%;
-    height:3rem;
-    margin-top:1rem;
+    height:50px;
+    margin-top:16px;
     .left{
-      padding:1rem;
+      padding:16px;
       color:red;
       float:left;
-      font-size:1.2rem;
+      font-size:18px;
       span {
-        font-size:0.5rem;
+        font-size:8px;
       }
     }
     .tkui-button {

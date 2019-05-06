@@ -1,13 +1,13 @@
 <template>
   <tk-container class="brand">
     <tkui-header center>
-      <tkui-button slot="left" class="icon" v-on:click="back()">
+      <tkui-button slot="left" class="icon" @click="back()">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>选择品牌
     </tkui-header>
     <h2>主营品牌</h2>
     <tk-flex wrap>
-      <div v-on:click="chose(opt)" class="item tk-grid-4" v-for="opt in brands">
+      <div @click="chose(opt)" class="item tk-grid-4" v-for="opt in brands">
         <tkui-button border primary v-show="!opt.active">{{opt.name}}</tkui-button>
         <tkui-button raised primary v-show="opt.active">{{opt.name}}</tkui-button>
       </div>

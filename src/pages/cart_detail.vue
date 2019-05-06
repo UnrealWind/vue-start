@@ -1,7 +1,7 @@
 <template>
   <tk-container>
     <tkui-header center>
-      <tkui-button slot="left" class="icon" v-on:click="back()">
+      <tkui-button slot="left" class="icon" @click="back()">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>订单详情
     </tkui-header>
@@ -16,7 +16,7 @@
         <h2>{{commoditys[0].shop.shopName}}</h2>
       </div>
       <tkui-list-item disableHover divider v-for="commodity in commoditys">
-        <img slot="left" v-bind:src="commodity.tagimg" class="avatar" />
+        <tk-image slot="left"  :src="commodity.tagimg"  class="avatar"></tk-image>
         <div class="content" >
           <div class="title">{{commodity.modelName}}</div>
           <div class="des">{{commodity.configInfo}}</div>
@@ -46,12 +46,15 @@ export default {
       cart_objectId:this.$getFlash('flash').cart_objectId
     }
   },
-  activated:function(){
-
-  },
   mounted:function(){
-    var that = this;
-    (async () => {
+    this.init();
+  },
+  methods:{
+    init(){
+      this.getOrder();
+    },
+    async getOrder(){
+      let cart = this.cart;
       let res = await this.$tkParse.get('/classes/order',{
         params: {  // url参数
           where:{
@@ -63,7 +66,7 @@ export default {
       //适配器
       res.data.results.forEach((n,i)=>{
         n.detail.forEach((ni,yi)=>{
-          !that.cart[ni.shop.objectId]?that.cart[ni.shop.objectId] = [ni]:that.cart[ni.shop.objectId].push(ni);
+          !cart[ni.shop.objectId]?cart[ni.shop.objectId] = [ni]:cart[ni.shop.objectId].push(ni);
         })
       });
 
@@ -74,15 +77,6 @@ export default {
       }
 
       this.totalPrice = res.data.results[0].totalFee;
-    })();
-  },
-  methods:{
-    calculationPrice:function(){
-      for(var i in this.cart){
-        this.cart[i].forEach((n,i)=>{
-          this.totalPrice += n.price*n.quantity;
-        })
-      }
     },
     back:function(){
       this.$replace('/');
@@ -106,78 +100,74 @@ export default {
   }
 
   .list-header {
-    padding: 0 1rem;
-    font-size: 0.8rem;
-    margin-top:1rem;
+    padding: 0 16px;
+    font-size: 12px;
+    margin-top:16px;
     h2 {
-      padding: 0.5rem 0;
+      padding: 8px 0;
     }
   }
 
   .tkui-list-item {
-    padding:0.3rem 1rem;
+    padding:5px 16px;
     .list-item-content {
       .content {
-        padding: 0.3rem;
+        padding: 5px;
         text-align:left;
         width:100%;
         .title {
-          margin-bottom:0.3rem;
+          margin-bottom:5px;
           .pull-right {
             float:right;
             display: block;
-            font-size:0.5rem;
+            font-size:8px;
             font-weight:300;
           }
         }
         .des {
-          font-size:0.75rem;
+          font-size:11px;
           color:#aaa;
         }
         .price {
           color:red;
-          margin-top:0.3rem;
+          margin-top:5px;
           .right{
             float:right;
             border:0;
             span {
               display: inline-block;
-              width:1.5rem;
-              height:1.5rem;
+              width:24px;
+              height:24px;
               background-color: #eee;
-              padding: 0.1rem;
+              padding: 2px;
               text-align: center;
-              font-size:1.2rem;
+              font-size:18px;
               color:#666;
             }
             span:nth-child(2) {
               background: #fff;
-              font-size:0.8rem;
+              font-size:12px;
             }
           }
-        }
-        .gray {
-          font-size:0.8rem !important;
-          color:#666;
-          margin-top:0.3rem;
         }
       }
     }
   }
+
   .qrcode {
-    padding: 1rem;
+    padding: 16px;
     background: #fff;
-    margin-top:1rem;
+    margin-top:16px;
     h4  {
-      padding-top:0.5rem;
-      font-size:0.9rem;
+      padding-top:8px;
+      font-size:14px;
       font-weight:300;
       color:#666;
     }
     .red {
-      padding-top:0.5rem;
+      padding-top:8px;
       color:red;
-      font-size:1.2rem;
+      font-size:18px;
     }
   }
 

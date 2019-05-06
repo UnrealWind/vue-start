@@ -1,7 +1,7 @@
 <template>
   <tk-container>
     <tkui-header center>
-      <tkui-button slot="left" class="icon" v-on:click="back()">
+      <tkui-button slot="left" class="icon" @click="back()">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>商家主页
     </tkui-header>

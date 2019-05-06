@@ -1,7 +1,7 @@
 <template>
   <tk-container hideStatusBar infiniteScroll @loadingMore="loadingMore">
     <tkui-header center>
-      <tkui-button slot="left" class="icon" v-on:click="back()">
+      <tkui-button slot="left" class="icon" @click="$back">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>定位
     </tkui-header>
@@ -46,20 +46,11 @@ export default {
     //这页原型那种方法感觉蛮奇怪的，还需要根据首字母进行匹配重新生成数据，也没有导航，个人感觉还是使用城市选择器，使用城市选择器的话，这一页完全可以省略
     //直接在上一页按钮上使用即可，这一页默认作为展示无限加载的页面吧。
     this.targetCity = this.$getFlash('targetCity');
-    (async () => {
-      this.cityList = this.$tkRegions.getCityList();
-
-      /*  貌似包里没有这个方法，未更新
-
-      let position = await this.$tkGeolocation.getCurrentPosition()
-      console.log(position)*/
-    })();
-
-
+    this.init();
   },
   methods:{
-    back:function(){
-      this.$back();
+    init(){
+      this.cityList = this.$tkRegions.getCityList();
     },
     loadingMore: function(page, next) {
       let that = this;
@@ -85,12 +76,12 @@ export default {
   .list-item-content {
     .content {
       .des {
-        font-size:0.8rem;
+        font-size:13px;
         color:#aaa;
-        padding-left:0.5rem;
+        padding-left:8px;
       }
       .title {
-        padding: 0.5rem;
+        padding: 8px;
       }
 
     }

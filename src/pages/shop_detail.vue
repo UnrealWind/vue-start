@@ -1,7 +1,7 @@
 <template>
   <tk-container class="shop">
     <tkui-header background="white" color="#333" center>
-      <tkui-button slot="left" class="icon" v-on:click="back()">
+      <tkui-button slot="left" class="icon" @click="$back()">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>
       {{shop.shopName}}
@@ -9,8 +9,8 @@
 
     <tkui-list v-if="shop.user && shop.user.objectId &&commodity && commodity.length>0">
       <tkui-list-item divider v-for="opt in commodity" >
-        <img slot="left" v-bind:src="opt.tagImg" class="avatar" />
-        <div class="content"  v-on:click="goCommodityPage(opt)">
+        <tk-image slot="left"  :src="opt.tagImg"  class="avatar"></tk-image>
+        <div class="content"  @click="goCommodityPage(opt)">
           <div class="title">{{opt.modelName}}</div>
           <div class="des">{{opt.configInfo}}</div>
           <div class="price">¥{{opt.price}}</div>
@@ -40,23 +40,26 @@ export default {
     }
   },
   mounted:function(){
-    var that = this;
     this.shop = this.$getFlash('flash').shop;
-    (async () => {
+    this.init();
+  },
+  methods:{
+    init (){
+      try{
+        this.getCommodity();
+      }catch(e){
+        //code
+      }
+    },
+    async getCommodity(){
       let res = await this.$tkParse.get('/classes/model',{
         params: {  // url参数
-          //include: 'user',
           where:{
             user:this.shop.user.objectId
           }
         }
       });
       this.commodity = res.data.results;
-    })();
-  },
-  methods:{
-    back:function(){
-      this.$back();
     },
     goCommodityPage:function(opt){
       this.$setFlash('flash',{
@@ -84,28 +87,28 @@ export default {
   }
 
   .tkui-list-item {
-    padding:0.3rem 1rem;
+    padding:5px 16px;
     .list-item-content {
       .content {
-        padding: 0.3rem;
+        padding: 5px;
         text-align:left;
         width:100%;
         .title {
-          margin-bottom:0.3rem;
+          margin-bottom:5px;
           .pull-right {
             float:right;
             display: block;
-            font-size:0.5rem;
+            font-size:8px;
             font-weight:300;
           }
         }
         .des {
-          font-size:0.75rem;
+          font-size:13px;
           color:#aaa;
         }
         .price {
           color:red;
-          margin-top:0.3rem;
+          margin-top:5px;
         }
       }
     }

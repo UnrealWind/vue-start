@@ -1,7 +1,7 @@
 <template>
   <tk-container>
     <tkui-header center>
-      <tkui-button slot="left" class="icon" v-on:click="back()">
+      <tkui-button slot="left" class="icon" @click="$back">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>个人主页
     </tkui-header>
@@ -23,7 +23,6 @@
         <span slot="right">{{userInfo.username}}</span>
       </tkui-list-item>
     </tkui-list>
-    <tk-toast ref="toast"></tk-toast>
     <tkui-button @click="logout()" class="special" raised big block border>退出登录</tkui-button>
 
     <tkui-dialog :show.sync="show" center>
@@ -64,9 +63,6 @@ export default {
     }
   },
   methods:{
-    back:function(){
-      this.$back();
-    },
     logout:function(){
       this.$replace('/login');
     },
@@ -74,23 +70,20 @@ export default {
       this.$tkFile.pick({
         type: this.type,
         from: this.from
-      })
-        .then(file => {
-          (async()=>{
-            let res1 = await this.$tkParse.post('/files',file.buffer);
-            this.file = res1.data;
-            let res2 = await this.$tkParse.put('/classes/_User/'+this.$store.state.user.objectId,{
-              avatar:this.file.url
-            },{})
-            res2.status == '200'?(this.$refs.toast.add('修改成功！'),this.$store.commit('add',{key:'avatar',value:res1.url})):this.$refs.toast.add('修改失败，请重试！')
-          })();
+      }).then(file => {
+          this.change();
         })
         .catch(e => {
           window.alert(e.message)
         })
     },
-    changeUsername(){
-
+    async change(){
+      let res1 = await this.$tkParse.post('/files',file.buffer);
+      this.file = res1.data;
+      let res2 = await this.$tkParse.put('/classes/_User/'+this.$store.state.user.objectId,{
+        avatar:this.file.url
+      },{})
+      res2.status == '200'?(this.$tkGlobal.toast.add('修改成功！'),this.$store.commit('add',{key:'avatar',value:res1.url})):this.$tkGlobal.toast.add('修改失败，请重试！')
     },
     showModel(){
       this.show = true;
@@ -98,14 +91,12 @@ export default {
     close(){
       this.show = false;
     },
-    save(){
-      (async()=>{
-        let res2 = await this.$tkParse.put('/classes/_User/'+this.$store.state.user.objectId,{
-          username:this.userInfo.username
-        },{});
-        this.show = false;
-        res2.status == '200'?(this.$refs.toast.add('修改成功！'),this.$store.commit('add',{key:'username',value:this.userInfo.username})):this.$refs.toast.add('修改失败，请重试！')
-      })();
+    async save(){
+      let res2 = await this.$tkParse.put('/classes/_User/'+this.$store.state.user.objectId,{
+        username:this.userInfo.username
+      },{});
+      this.show = false;
+      res2.status == '200'?(this.$tkGlobal.toast.add('修改成功！'),this.$store.commit('add',{key:'username',value:this.userInfo.username})):this.$tkGlobal.toast.add('修改失败，请重试！')
     }
   }
 }
@@ -114,12 +105,12 @@ export default {
 <style lang="scss" scoped>
   .tkui-list {
     .tkui-list-item {
-      padding: 1rem;
+      padding: 16px;
       border-bottom:1px solid #eee;
     }
   }
   .tkui-button.special {
-    margin-top:3rem;
+    margin-top:50px;
     background-color: #fff;
     color:red;
   }

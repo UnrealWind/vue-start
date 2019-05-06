@@ -30,6 +30,8 @@ const store = new Vuex.Store({
         !has?state.cart[cart.shop.objectId].push(cart):'';
       })();
     },
+
+    //改变单一一条数据
     add(state,msg){
       state.user[msg.key] = msg.value;
     },

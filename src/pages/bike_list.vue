@@ -1,7 +1,7 @@
 <template>
   <tk-container class="shop">
     <tkui-header background="white" color="#333" center>
-      <tkui-button slot="left" class="icon" v-on:click="back()">
+      <tkui-button slot="left" class="icon" @click="back()">
         <tk-icon>me1</tk-icon>
       </tkui-button>
       库存列表
@@ -11,7 +11,7 @@
       <span v-for="brand in shop.mainBrand">
         <tkui-list-item divider v-if="brand == opt.objectId"  v-for="(opt,index) in brands">
         <img slot="left" v-bind:src="opt.logo" class="avatar" />
-        <div class="content"  v-on:click="goBikeBrand(opt)">
+        <div class="content"  @click="goBikeBrand(opt)">
           <div class="title">{{opt.name}}</div>
           <div class="des"><span v-if="opt.objectId == info.brand" v-for="(info,index) in commodity">{{info.modelName}}</span></div>
         </div>
