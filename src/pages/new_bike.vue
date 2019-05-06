@@ -71,7 +71,6 @@
           ni == n.objectId?this.brands[n.objectId] = n.name:'';
         })
       });
-      console.log(this.$getFlash('flash').bike)
       this.$getFlash('flash').bike?(()=>{
         this.bikeName = this.$getFlash('flash').bike.modelName;
         this.brand = this.$getFlash('flash').bike.brand;
@@ -79,8 +78,6 @@
         this.des = this.$getFlash('flash').bike.configInfo;
         this.file['url'] = this.$getFlash('flash').bike.tagImg;
         })():'';
-
-      console.log(this.mainBrand,this.userInfo,this.brands)
     },
     methods:{
       back:function(){

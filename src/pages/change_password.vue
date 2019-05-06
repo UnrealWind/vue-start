@@ -47,13 +47,11 @@ export default {
   methods:{
     changePassword:function(){
       let jud = this.$refs.form_all.validate();
-      console.log(this.$store.state.user)
       jud.length == 0 && this.newPassWord == this.reNewPassWord?
         (async()=>{
           let res = await this.$tkParse.put('/classes/_User/'+this.$store.state.user.objectId,{
             password:this.newPassWord
           },{})
-          console.log(res.data)
           res.status == '200'?(this.$refs.toast.add('修改成功！'),this.$store.commit('setSessionToken',res.data.sessionToken)):this.$refs.toast.add('修改失败，请重试！')
         })():'';
     },

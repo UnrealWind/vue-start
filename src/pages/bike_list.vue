@@ -46,7 +46,6 @@
     mounted:function(){
       var that = this;
       this.shop = this.$store.state.user;
-console.log(this.shop);
       //fydebug@20190430这里业务逻辑和我自己想的不一样
       //this.brands = JSON.parse(JSON.stringify(this.$getFlash('flash').brands))
       (async () => {
@@ -66,7 +65,6 @@ console.log(this.shop);
           }
         });
         this.commodity = res2.data.results;
-        console.log(this.brands)
       })();
     },
     methods:{

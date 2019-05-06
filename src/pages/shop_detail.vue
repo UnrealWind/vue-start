@@ -42,7 +42,6 @@ export default {
   mounted:function(){
     var that = this;
     this.shop = this.$getFlash('flash').shop;
-    console.log(this.shop);
     (async () => {
       let res = await this.$tkParse.get('/classes/model',{
         params: {  // url参数
@@ -53,7 +52,6 @@ export default {
         }
       });
       this.commodity = res.data.results;
-      console.log(this.commodity,this.shop )
     })();
   },
   methods:{

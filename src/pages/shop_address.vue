@@ -75,7 +75,6 @@ export default {
           }
         }
       })
-      console.log(res)
       res.status == '200' && res.data.results.length>0?(async()=>{
         this.shopName = res.data.results[0].shopName;
         this.location = res.data.results[0].location;

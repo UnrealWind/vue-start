@@ -48,7 +48,6 @@
       var that = this;
       this.shop = this.$store.state.user;
       this.brand = this.$getFlash('flash').brand;
-      console.log(this.brand);
       //昂，这一页和之前商品列表是差不多的，再次验证了一下查询逻辑，之前的就先不改了
       (async () => {
         let res = await this.$tkParse.get('/classes/model',{
@@ -60,7 +59,6 @@
           }
         });
         this.commodity = res.data.results;
-        console.log(this.commodity)
       })();
     },
     methods:{

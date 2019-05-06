@@ -152,7 +152,6 @@ export default {
         })
         this.city = position.name;
         this.location = [position.latitude,position.longitude];
-        console.log(position)
     },
     getPosition:function(posi1){
       var that = this;
