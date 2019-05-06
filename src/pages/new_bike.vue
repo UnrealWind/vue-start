@@ -67,9 +67,10 @@
       this.userInfo = this.$store.state.user;
       this.brands = {};
       this.mainBrand.forEach((n,i)=>{
-        this.brands[n.objectId] = n.name;
+        this.userInfo.mainBrand.forEach((ni,ii)=>{
+          ni == n.objectId?this.brands[n.objectId] = n.name:'';
+        })
       });
-
       console.log(this.$getFlash('flash').bike)
       this.$getFlash('flash').bike?(()=>{
         this.bikeName = this.$getFlash('flash').bike.modelName;
