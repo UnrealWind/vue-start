@@ -34,65 +34,69 @@
 </template>
 
 <script>
-  export default {
-    name: 'bike-brand',
-    layout: 'bike-brand',
-    data: function() {
-      return {
-        shop:{},
-        commodity:[],
-        brand:null
-      }
+export default {
+  name: 'bike-brand',
+  layout: 'bike-brand',
+  data: function () {
+    return {
+      shop: {},
+      commodity: [],
+      brand: null
+    }
+  },
+  mounted: function () {
+    this.init()
+  },
+  methods: {
+    init () {
+      this.getModel()
     },
-    mounted:function(){
-      var that = this;
-      this.shop = this.$store.state.user;
-      this.brand = this.$getFlash('flash').brand;
-      //昂，这一页和之前商品列表是差不多的，再次验证了一下查询逻辑，之前的就先不改了
-      (async () => {
-        let res = await this.$tkParse.get('/classes/model',{
-          params: {  // url参数
-           where:{
-              user:this.shop.objectId,
-              brand:this.brand.objectId,
-            }
+    async getModel () {
+      this.shop = this.$store.state.user
+      this.brand = this.$getFlash('flash').brand
+
+      // 昂，这一页和之前商品列表是差不多的，再次验证了一下查询逻辑，之前的就先不改了
+      let res = await this.$tkParse.get('/classes/model', {
+        params: { // url参数
+          where: {
+            user: this.shop.objectId,
+            brand: this.brand.objectId
           }
-        });
-        this.commodity = res.data.results;
-      })();
+        }
+      })
+      this.commodity = res.data.results
     },
-    methods:{
-      back:function(){
-        this.$setFlash('flash',{
-          shop:this.userInfo,
-          brands:this.$getFlash('flash').brands
-        });
-        this.$back();
-      },
-      newBike:function(opt){
-        this.$push({
-          path:'/new-bike',
-          flash:{
-            flash:{
-              shop:this.userInfo,
-              brands:this.$getFlash('flash').brands
-            }
+    back: function () {
+      this.$setFlash('flash', {
+        shop: this.userInfo,
+        brands: this.$getFlash('flash').brands
+      })
+      this.$back()
+    },
+    newBike: function (opt) {
+      this.$push({
+        path: '/new-bike',
+        flash: {
+          flash: {
+            shop: this.userInfo,
+            brands: this.$getFlash('flash').brands
           }
-        });
-      },
-      goNewBike:function(opt){
-        this.$push({
-          path:'/new-bike',
-          flash:{
-            flash:{
-              bike:opt,
-              brands:this.$getFlash('flash').brands
-            }
+        }
+      })
+    },
+    goNewBike: function (opt) {
+      this.$push({
+        path: '/new-bike',
+        flash: {
+          flash: {
+            bike: opt,
+            brands: this.$getFlash('flash').brands
           }
-        });
-      }
+        }
+      })
     }
   }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -107,9 +111,9 @@
     width:60px;
     border-radius:30px;
     position:fixed;
-    bottom:1rem;
-    right:1rem;
-    font-size:3rem;
+    bottom:16px;
+    right:16px;
+    font-size:50px;
     border:1px solid #ccc;
     text-align:center;
     background:rgba(0, 145, 255, 1);
@@ -125,28 +129,28 @@
   }
 
   .tkui-list-item {
-    padding:0.3rem 1rem;
+    padding:5px 16px;
     .list-item-content {
       .content {
-        padding: 0.3rem;
+        padding: 5px;
         text-align:left;
         width:100%;
         .title {
-          margin-bottom:0.3rem;
+          margin-bottom:5px;
           .pull-right {
             float:right;
             display: block;
-            font-size:0.5rem;
+            font-size:8px;
             font-weight:300;
           }
         }
         .des {
-          font-size:0.75rem;
+          font-size:13px;
           color:#aaa;
         }
         .price {
           color:red;
-          margin-top:0.3rem;
+          margin-top:5px;
         }
       }
     }

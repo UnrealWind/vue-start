@@ -46,31 +46,31 @@
 export default {
   name: 'commodity_detail',
   layout: 'commodity_detail',
-  data: function() {
+  data: function () {
     return {
-      commodity:{},
-      quantity:1,
-      shop:{}
+      commodity: {},
+      quantity: 1,
+      shop: {}
     }
   },
-  mounted:function(){
-    this.commodity = this.$getFlash('flash').commodity;
-    this.shop = this.$getFlash('flash').shop;
+  mounted: function () {
+    this.commodity = this.$getFlash('flash').commodity
+    this.shop = this.$getFlash('flash').shop
   },
-  methods:{
-    back:function(){
-      this.$setFlash('flash',{
-        commodity:this.commodity,
-        shop:this.$getFlash('flash').shop
-      });
-      this.$back();
+  methods: {
+    back: function () {
+      this.$setFlash('flash', {
+        commodity: this.commodity,
+        shop: this.$getFlash('flash').shop
+      })
+      this.$back()
     },
-    calculation:function(num){
-      if(this.quantity == 0 && Number(num)=='-1') return;
-      this.quantity += Number(num);
+    calculation: function (num) {
+      if (this.quantity == 0 && Number(num) == '-1') return
+      this.quantity += Number(num)
     },
-    addin:function(){
-      this.quantity>0?(async()=>{
+    addin: function () {
+      this.quantity > 0 ? (async () => {
         /*
           本来以为有购物车表的，后来发现没有，就存缓存吧
           这里想了一下是在加载这个页面的时候去回溯这份数据，但是觉得这样子过于频繁的操作store了，就改成在store合并这份数据了
@@ -79,12 +79,11 @@ export default {
         ]);
         res.status == '201'?this.$refs.toast.add('已经添加进购物车！'):this.$refs.toast.add('添加失败请重试！')
         */
-        this.commodity['quantity'] = this.quantity;
-        this.commodity['shop'] = this.shop;
-        this.$store.commit('setCart',this.commodity);
-        this.$tkGlobal.toast.add('已经添加进购物车！');
-
-      })():this.$tkGlobal.toast.add('购买数量不能为0！');
+        this.commodity['quantity'] = this.quantity
+        this.commodity['shop'] = this.shop
+        this.$store.commit('setCart', this.commodity)
+        this.$tkGlobal.toast.add('已经添加进购物车！')
+      })() : this.$tkGlobal.toast.add('购买数量不能为0！')
     }
   }
 }
@@ -126,7 +125,7 @@ export default {
       color:#aaa;
     }
   }
-  
+
   .buy {
     padding:16px;
     overflow: hidden;

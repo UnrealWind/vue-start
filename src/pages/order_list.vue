@@ -114,81 +114,81 @@
 export default {
   name: 'order-list',
   layout: 'order-list',
-  data: function() {
+  data: function () {
     return {
-      orders:[],
-      paidStatus:'',
-      userInfo:{},
-      orderType:'',
-      orderUnpaid:[],
-      orderComplete:[],
-      orderClose:[]
+      orders: [],
+      paidStatus: '',
+      userInfo: {},
+      orderType: '',
+      orderUnpaid: [],
+      orderComplete: [],
+      orderClose: []
     }
   },
-  mounted:function(){
-    this.init();
+  mounted: function () {
+    this.init()
   },
-  methods:{
-    init:function(){
-      let orderType = this.$getFlash('orderType');
+  methods: {
+    init: function () {
+      let orderType = this.$getFlash('orderType')
 
-      //标一下全局状态
-      switch (orderType){
-        case 'all':this.orderType = '全部订单';break;
-        case 'unpaid':this.orderType = '未付款';break;
-        case 'complete':this.orderType = '已完成';break;
-        case 'close':this.orderType = '已取消';break;
+      // 标一下全局状态
+      switch (orderType) {
+        case 'all':this.orderType = '全部订单'; break
+        case 'unpaid':this.orderType = '未付款'; break
+        case 'complete':this.orderType = '已完成'; break
+        case 'close':this.orderType = '已取消'; break
       }
 
-      //获取数据，然后总价需要计算一下
-      this.userInfo = this.$store.state.user;
-      this.getOrder();
+      // 获取数据，然后总价需要计算一下
+      this.userInfo = this.$store.state.user
+      this.getOrder()
     },
-    async getOrder(){
-        let res = await this.$tkParse.get('/classes/order',{
-          params: {  // url参数
-            //include:'user',
-            order:'-createdAt',
-            where:{
-              user:this.userInfo.objectId
-            }
-          },
-        }).catch(err=>{
-          //error code
-        });
-        this.orders = res.data.results;
-
-        //算一下总价
-       /* orderUnpaid:[],
-          orderComplete:[],
-          orderClose:[]*/
-
-        this.orders.forEach((n,i)=>{
-          n['price'] = 0;
-          switch (n.status){
-            case 'unpaid':n.paidStatus = '未付款',this.orderUnpaid.push(n);break;
-            case 'complete':n.paidStatus = '已完成';this.orderComplete.push(n);break;
-            case 'close':n.paidStatus = '已关闭';this.orderClose.push(n);break;
-          }
-          n['titleName'] = '';
-          let titleName = {};
-          n.detail.forEach((ni,ii)=>{
-            if(!ni) return;
-            ni['price']?n.price += ni.price:'';
-            !titleName[ni.shop.shopName]?
-              (ii==0?n['titleName']+= ni.shop.shopName:n['titleName']+= '，'+ni.shop.shopName,titleName[ni.shop.shopName] =true):'';
-          })
-        })
-    },
-    goCartDetail:function(opt){
-      this.$push({
-        path:'/cart-detail',
-        flash:{
-          flash:{
-            cart_objectId:opt.objectId,
+    async getOrder () {
+      let res = await this.$tkParse.get('/classes/order', {
+        params: { // url参数
+          // include:'user',
+          order: '-createdAt',
+          where: {
+            user: this.userInfo.objectId
           }
         }
-      });
+      }).catch(err => {
+        // error code
+      })
+      this.orders = res.data.results
+
+      // 算一下总价
+      /* orderUnpaid:[],
+          orderComplete:[],
+          orderClose:[] */
+
+      this.orders.forEach((n, i) => {
+        n['price'] = 0
+        switch (n.status) {
+          case 'unpaid':n.paidStatus = '未付款', this.orderUnpaid.push(n); break
+          case 'complete':n.paidStatus = '已完成'; this.orderComplete.push(n); break
+          case 'close':n.paidStatus = '已关闭'; this.orderClose.push(n); break
+        }
+        n['titleName'] = ''
+        let titleName = {}
+        n.detail.forEach((ni, ii) => {
+          if (!ni) return
+          ni['price'] ? n.price += ni.price : ''
+          !titleName[ni.shop.shopName]
+            ? (ii == 0 ? n['titleName'] += ni.shop.shopName : n['titleName'] += '，' + ni.shop.shopName, titleName[ni.shop.shopName] = true) : ''
+        })
+      })
+    },
+    goCartDetail: function (opt) {
+      this.$push({
+        path: '/cart-detail',
+        flash: {
+          flash: {
+            cart_objectId: opt.objectId
+          }
+        }
+      })
     }
   }
 }
@@ -292,4 +292,3 @@ export default {
   }
 
 </style>
-

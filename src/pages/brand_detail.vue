@@ -19,48 +19,35 @@
 export default {
   name: 'brand-detail',
   layout: 'brand-detail',
-  data: function() {
+  data: function () {
     return {
-      brands:[],
-      type:'whatever'
+      brands: []
     }
   },
-  activated:function(){
-
+  mounted: function () {
+    this.brands = JSON.parse(JSON.stringify(this.$getFlash('flash').brands))
+    this.userInfo = JSON.parse(JSON.stringify(this.$store.state.user))
   },
-  mounted:function(){
-    this.brands = JSON.parse(JSON.stringify(this.$getFlash('flash').brands));
-    this.userInfo = JSON.parse(JSON.stringify(this.$store.state.user));
-    this.$getFlash('flash').type?this.type = this.$getFlash('flash').type:'';
-  },
-  methods:{
-    back:function(){
-      this.$back();
-      this.$setFlash('flash',{
-        brands:this.brands
-      });
+  methods: {
+    back: function () {
+      this.$back()
+      this.$setFlash('flash', {
+        brands: this.brands
+      })
     },
-    chose:function(opt){
-      this.type == 'whatever'?(async()=>{
-        var that = this;
-        opt['active']?(opt['active'] = false,this.userInfo.mainBrand.splice(this.userInfo.mainBrand.indexOf(opt.objectId),1)):
-          (opt['active'] = true,this.userInfo.mainBrand = this.userInfo.mainBrand.concat([opt.objectId]));
-        (async()=>{
-
-          //..  这里更新数据的文档写的有些模糊了，不过结合上下文来看是这么写，试了一下是可以的
-          let res = await this.$tkParse.put('/classes/_User/'+this.$store.state.user.objectId,{
-            mainBrand:this.userInfo.mainBrand
-          },{})
-          that.$store.commit('setUser',that.userInfo);
-        })();
-      })():(async()=>{
-        opt['active']?opt['active'] = false:(async()=>{
-          this.brands.forEach(function(n,i){
-            n['active'] = false;
-          })
-          opt['active'] = true;
-        })()
-      })()
+    chose: function (opt) {
+      opt['active'] ? (opt['active'] = false, this.userInfo.mainBrand.splice(this.userInfo.mainBrand.indexOf(opt.objectId), 1))
+        : (opt['active'] = true, this.userInfo.mainBrand = this.userInfo.mainBrand.concat([opt.objectId]))
+      this.putUser()
+    },
+    async putUser () {
+      // ..  这里更新数据的文档写的有些模糊了，不过结合上下文来看是这么写，试了一下是可以的
+      let res = await this.$tkParse.put('/classes/_User/' + this.$store.state.user.objectId, {
+        mainBrand: this.userInfo.mainBrand
+      }, {}).catch(err => {
+        // err code
+      })
+      this.$store.commit('setUser', this.userInfo)
     }
   }
 }
@@ -68,9 +55,9 @@ export default {
 
 <style lang="scss" scoped>
   h2 {
-    font-size:1rem;
+    font-size:16px;
     font-weight:500;
-    padding:1rem;
+    padding:16px;
     color:#666;
     text-align:left;
   }
@@ -79,4 +66,3 @@ export default {
   }
 
 </style>
-

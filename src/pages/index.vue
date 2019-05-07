@@ -14,7 +14,7 @@
       </tkui-header>
 
       <tk-slider loop autoPlay>
-        <div class="slider-item" v-for="image, index in imgs" :key="index">
+        <div class="slider-item" v-for="image,index in imgs" :key="index">
           <tk-image style="width: 100%;" :src="image.image" width="1200" height="600"></tk-image>
         </div>
       </tk-slider>
@@ -29,7 +29,7 @@
               <span class="pull-right">距离：{{opt.position}}km</span>
             </div>
             <div class="des">{{opt.txtLocation}}</div>
-            <div class="btn-box">
+            <div v-if="opt.user" class="btn-box">
               <span v-for="tagBrand in opt.user.mainBrand">
               <tkui-button raised rounded primary small disabled v-for="brand in brands" v-if="tagBrand == brand.objectId">{{brand.name}}</tkui-button>
             </span>
@@ -46,80 +46,81 @@
 export default {
   name: 'home',
   layout: 'home',
-  data: function() {
+  data: function () {
     return {
-      imgs:[],
-      shop:[],
-      speImg:'http://moke-store.oss-cn-beijing.aliyuncs.com/b6813a52-5db9-4c65-a8af-60f41e9d15af.png',
-      brands:[],
-      mapShow:true,
-      city:'加载中',
-      position:{},
-      location:[],
-      search:'',
+      imgs: [],
+      shop: [],
+      speImg: 'http://moke-store.oss-cn-beijing.aliyuncs.com/b6813a52-5db9-4c65-a8af-60f41e9d15af.png',
+      brands: [],
+      mapShow: true,
+      city: '加载中',
+      position: {},
+      location: [],
+      search: ''
     }
   },
-  mounted:function(){
-    this.getLocal().then(()=>{
-      this.init();
-    });
+  mounted: function () {
+    this.getLocal().then(() => {
+      this.init()
+    })
   },
-  methods:{
-    init:function(){
-      try{
-        this.getSlider();
-        this.getBrand();
-        this.getShop();
-      }catch(e){
-        //code
+  methods: {
+    init: function () {
+      try {
+        this.getSlider()
+        this.getBrand()
+        this.getShop()
+      } catch (e) {
+        // code
       }
     },
-    async getSlider(){
-        let res = await this.$tkParse.get('/classes/slider', {});
-        this.imgs = res.data.results;
+    async getSlider () {
+      let res = await this.$tkParse.get('/classes/slider', {})
+      this.imgs = res.data.results
     },
-    async getBrand(){
-        let res = await this.$tkParse.get('/classes/brand', {
-          params: {  // url参数
-            include: 'user',
-          }
-        });
+    async getBrand () {
+      let res = await this.$tkParse.get('/classes/brand', {
+        params: { // url参数
+          include: 'user'
+        }
+      })
+      this.brands = res.data.results
     },
-    async getShop(){
-        let that = this;
-        let res = await this.$tkParse.get('/classes/shop', {
-          params: {
-            include: 'user',
-          }
-        });
-        this.shop = res.data.results;
+    async getShop () {
+      let that = this
+      let res = await this.$tkParse.get('/classes/shop', {
+        params: {
+          include: 'user'
+        }
+      })
+      this.shop = res.data.results
 
-        //获取数据的时候算一下距离
-        this.shop.forEach((n,i)=>{
-          n['position'] = that.getPosition([n.location.latitude,n.location.longitude])
-        });
+      // 获取数据的时候算一下距离
+      this.shop.forEach((n, i) => {
+        n['position'] = that.getPosition([n.location.latitude, n.location.longitude])
+      })
 
-        this.shop.sort(function(a,b){
-          return a.position-b.position
-        });
+      this.shop.sort(function (a, b) {
+        return a.position - b.position
+      })
     },
-    goShopPage:function(opt){
-      this.$setFlash('flash',{
-        shop:opt
-      });
-      this.$push('/shop-detail');
+    goShopPage: function (opt) {
+      this.$setFlash('flash', {
+        shop: opt
+      })
+      this.$push('/shop-detail')
     },
-    checkResult(result) {
+    checkResult (result) {
       // 对result进行判断，当返回true时,扫码成功，扫描器关闭
-      this.$refs.scaner.close();
-      result?(()=>{
-        this.$push('/cart-detail');
-        this.$setFlash('flash',{
-          cart_objectId:result,
-        });
-      })():this.$refs.toast.add('扫码失败！请重试');
+      this.$refs.scaner.close()
+      result ? (() => {
+        this.$push('/cart-detail')
+        this.$setFlash('flash', {
+          cart_objectId: result
+        })
+      })() : this.$refs.toast.add('扫码失败！请重试')
     },
-    async scan() {
+    async scan () {
       // scanResult 为成功扫描后返回的数据
       let scanResult = await this.$refs.scaner.scan()
         .catch(e => {
@@ -127,36 +128,36 @@ export default {
           console.log(e.message) // 错误说明
         })
     },
-    async getLocal(){
-      //不知道为啥定唐县了,这个api用法应该是这样的
-        let position = await this.$tkGeolocation.getCurrentPosition({
-          parse:true,
-        })
-      this.city = position.name;
-        this.location = [position.latitude,position.longitude];
+    async getLocal () {
+      // 不知道为啥定唐县了,这个api用法应该是这样的
+      let position = await this.$tkGeolocation.getCurrentPosition({
+        parse: true
+      })
+      this.city = position.name
+      this.location = [position.latitude, position.longitude]
     },
-    getPosition:function(posi1){
-      let that = this;
-      function distance( lat1,  lng1,  lat2,  lng2){
-        var radLat1 = lat1*Math.PI / 180.0;
-        var radLat2 = lat2*Math.PI / 180.0;
-        var a = radLat1 - radLat2;
-        var  b = lng1*Math.PI / 180.0 - lng2*Math.PI / 180.0;
-        var s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a/2),2) +
-          Math.cos(radLat1)*Math.cos(radLat2)*Math.pow(Math.sin(b/2),2)));
-        s = s *6378.137 ;// EARTH_RADIUS;
-        s = Math.round(s * 100) / 100;
-        return s;
+    getPosition: function (posi1) {
+      let that = this
+      function distance (lat1, lng1, lat2, lng2) {
+        var radLat1 = lat1 * Math.PI / 180.0
+        var radLat2 = lat2 * Math.PI / 180.0
+        var a = radLat1 - radLat2
+        var b = lng1 * Math.PI / 180.0 - lng2 * Math.PI / 180.0
+        var s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2) +
+          Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)))
+        s = s * 6378.137// EARTH_RADIUS;
+        s = Math.round(s * 100) / 100
+        return s
       };
 
-      return (()=>{
-        return distance(posi1[0],posi1[1],that.location[0],that.location[1])
-      })();
+      return (() => {
+        return distance(posi1[0], posi1[1], that.location[0], that.location[1])
+      })()
     },
-    goCityChose(){
+    goCityChose () {
       this.$push({
         path: 'city-chose',
-          flash: {
+        flash: {
           targetCity: this.city
         }
       })

@@ -41,82 +41,81 @@
 export default {
   name: 'login-page',
   layout: '',
-  data: function() {
+  data: function () {
     return {
       tabs: {
         tabs1: '手机号登录',
         tabs2: '账号登录'
       },
-      targetTab:'tabs1',
-      phone:'18515889438', //电话号码
-      username:'',  //用户名
-      password:'',  //密码
-      code:'',  //短信验证码
+      targetTab: 'tabs1',
+      phone: '18515889438', // 电话号码
+      username: '', // 用户名
+      password: '', // 密码
+      code: '', // 短信验证码
       customRuler: [
         'required',
-        function(value) {
+        function (value) {
 
         }
-      ],
+      ]
     }
   },
-  methods:{
-    //用户登录
-    async userLogin(){
+  methods: {
+    // 用户登录
+    async userLogin () {
       let res = await this.$tkParse.post('/login', {
         username: this.username,
         password: this.password
       }).catch(e => {
         this.$tkGlobal.toast.add('登录失败！请重试！')
-      });
-      return res;
+      })
+      return res
     },
 
-    //手机号登录
-    async phoneLogin(){
+    // 手机号登录
+    async phoneLogin () {
       let res = await this.$tkParse.post('/loginByPhone', {
         phone: this.phone,
         code: this.code
       }).catch(e => {
         this.$tkGlobal.toast.add('登录失败！请重试！')
-      });;
-      return res;
+      })
+      return res
     },
     setUser () {
-      let jud = this.$refs.form_all.validate();
-      jud.length == 0?
-      this.targetTab == 'tabs1'?
-        this.phoneLogin().then(res=>{
-          this.jump(res);
-          this.$push('/')
-        }):this.userLogin().then(res=>{
-          this.jump(res);
+      let jud = this.$refs.form_all.validate()
+      jud.length == 0
+        ? this.targetTab == 'tabs1'
+          ? this.phoneLogin().then(res => {
+            this.jump(res)
+            this.$push('/')
+          }) : this.userLogin().then(res => {
+            this.jump(res)
 
-          //这里业务逻辑让跳转这个页面为第一个页面
-          this.$push('/bike-list')
-        }):'';
+            // 这里业务逻辑让跳转这个页面为第一个页面
+            this.$push('/bike-list')
+          }) : ''
     },
 
-    //这里校验一下非空进行不同的store存储 this.$store.commit('setSessionToken',this.username)
-    jump (res){
-        this.$store.commit('setSessionToken',res.data.sessionToken);
-        this.$store.commit('setUser',res.data);
-        this.$tkParse.setSessionToken(res.data.sessionToken);
+    // 这里校验一下非空进行不同的store存储 this.$store.commit('setSessionToken',this.username)
+    jump (res) {
+      this.$store.commit('setSessionToken', res.data.sessionToken)
+      this.$store.commit('setUser', res.data)
+      this.$tkParse.setSessionToken(res.data.sessionToken)
     },
 
-    //发送验证码
-    async getCode(){
-      let jud = this.$refs.form_phone.validate();
-      jud.length == 0?await this.$tkParse.post('/sms/sendCode',{
-          phone:this.phone,
-          templateId: 'ISxi11'
-        }).catch(e => {
-
-          //短信发送失败
-          this.$tkGlobal.toast.add('短信发送失败！请重试');
-          throw e;
-        }):'';
-        this.$tkGlobal.toast.add('短信发送成功！');
+    // 发送验证码
+    async getCode () {
+      let jud = this.$refs.form_phone.validate()
+      jud.length == 0 ? await this.$tkParse.post('/sms/sendCode', {
+        phone: this.phone,
+        templateId: 'ISxi11'
+      }).catch(e => {
+        // 短信发送失败
+        this.$tkGlobal.toast.add('短信发送失败！请重试')
+        throw e
+      }) : ''
+      this.$tkGlobal.toast.add('短信发送成功！')
     }
   }
 }

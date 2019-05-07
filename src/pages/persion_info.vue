@@ -42,63 +42,63 @@
 export default {
   name: 'persion-info',
   layout: 'persion-info',
-  data: function() {
+  data: function () {
     return {
-      userInfo:{},
+      userInfo: {},
       type: 'image',
       from: 'file',
       file: null,
-      show:false,
+      show: false
     }
   },
-  mounted:function(){
-    this.userInfo = this.$store.state.user;
-    this.userInfo.avatar?this.file = {
-      url:this.userInfo.avatar
-    }:'';
+  mounted: function () {
+    this.userInfo = this.$store.state.user
+    this.userInfo.avatar ? this.file = {
+      url: this.userInfo.avatar
+    } : ''
   },
   computed: {
-    isImage() {
-      //return this.file && /image/.test(this.file.file.type)
+    isImage () {
+      // return this.file && /image/.test(this.file.file.type)
     }
   },
-  methods:{
-    logout:function(){
-      this.$replace('/login');
+  methods: {
+    logout: function () {
+      this.$replace('/login')
     },
-    pick() {
+    pick () {
       this.$tkFile.pick({
         type: this.type,
         from: this.from
       }).then(file => {
-          this.change();
-        })
+        this.change()
+      })
         .catch(e => {
           window.alert(e.message)
         })
     },
-    async change(){
-      let res1 = await this.$tkParse.post('/files',file.buffer);
-      this.file = res1.data;
-      let res2 = await this.$tkParse.put('/classes/_User/'+this.$store.state.user.objectId,{
-        avatar:this.file.url
-      },{}).catch(err=>{
-        //error code
+    async change () {
+      let res1 = await this.$tkParse.post('/files', file.buffer)
+      this.file = res1.data
+      let res2 = await this.$tkParse.put('/classes/_User/' + this.$store.state.user.objectId, {
+        avatar: this.file.url
+      }, {}).catch(err => {
+        // error code
       })
-      res2.status == '200'?(this.$tkGlobal.toast.add('修改成功！'),this.$store.commit('add',{key:'avatar',value:res1.url})):this.$tkGlobal.toast.add('修改失败，请重试！')
+      res2.status == '200' ? (this.$tkGlobal.toast.add('修改成功！'), this.$store.commit('add', { key: 'avatar', value: res1.url })) : this.$tkGlobal.toast.add('修改失败，请重试！')
     },
-    showModel(){
-      this.show = true;
+    showModel () {
+      this.show = true
     },
-    close(){
-      this.show = false;
+    close () {
+      this.show = false
     },
-    async save(){
-      let res2 = await this.$tkParse.put('/classes/_User/'+this.$store.state.user.objectId,{
-        username:this.userInfo.username
-      },{});
-      this.show = false;
-      res2.status == '200'?(this.$tkGlobal.toast.add('修改成功！'),this.$store.commit('add',{key:'username',value:this.userInfo.username})):this.$tkGlobal.toast.add('修改失败，请重试！')
+    async save () {
+      let res2 = await this.$tkParse.put('/classes/_User/' + this.$store.state.user.objectId, {
+        username: this.userInfo.username
+      }, {})
+      this.show = false
+      res2.status == '200' ? (this.$tkGlobal.toast.add('修改成功！'), this.$store.commit('add', { key: 'username', value: this.userInfo.username })) : this.$tkGlobal.toast.add('修改失败，请重试！')
     }
   }
 }

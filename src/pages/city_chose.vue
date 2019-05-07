@@ -33,30 +33,29 @@
 export default {
   name: 'city-chose',
   layout: 'city-chose',
-  data: function() {
+  data: function () {
     return {
-      targetCity:'加载中',
-      cityList:[],
+      targetCity: '加载中',
+      cityList: [],
       perPage: 20,
-      targetList:[]
+      targetList: []
     }
   },
-  mounted:function(){
-
-    //这页原型那种方法感觉蛮奇怪的，还需要根据首字母进行匹配重新生成数据，也没有导航，个人感觉还是使用城市选择器，使用城市选择器的话，这一页完全可以省略
-    //直接在上一页按钮上使用即可，这一页默认作为展示无限加载的页面吧。
-    this.targetCity = this.$getFlash('targetCity');
-    this.init();
+  mounted: function () {
+    // 这页原型那种方法感觉蛮奇怪的，还需要根据首字母进行匹配重新生成数据，也没有导航，个人感觉还是使用城市选择器，使用城市选择器的话，这一页完全可以省略
+    // 直接在上一页按钮上使用即可，这一页默认作为展示无限加载的页面吧。
+    this.targetCity = this.$getFlash('targetCity')
+    this.init()
   },
-  methods:{
-    init(){
-      this.cityList = this.$tkRegions.getCityList();
+  methods: {
+    init () {
+      this.cityList = this.$tkRegions.getCityList()
     },
-    loadingMore: function(page, next) {
-      let that = this;
+    loadingMore: function (page, next) {
+      let that = this
       setTimeout(() => {
-        //this.num = (page + 1) * this.perPage
-        that.targetList = that.targetList.concat(that.cityList.slice((page) * that.perPage,(page+1) * that.perPage));
+        // this.num = (page + 1) * this.perPage
+        that.targetList = that.targetList.concat(that.cityList.slice((page) * that.perPage, (page + 1) * that.perPage))
         if (false) {
           next('complete')
         } else {
@@ -64,9 +63,9 @@ export default {
         }
       }, 1000)
     },
-    setCity:function(opt){
-      this.$back();
-      this.$setFlash('city',opt);
+    setCity: function (opt) {
+      this.$back()
+      this.$setFlash('city', opt)
     }
   }
 }

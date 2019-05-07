@@ -33,65 +33,74 @@
 </template>
 
 <script>
-  export default {
-    name: 'bike_list',
-    layout: 'bike_list',
-    data: function() {
-      return {
-        shop:{},
-        commodity:[],
-        brands:[]
+export default {
+  name: 'bike_list',
+  layout: 'bike_list',
+  data: function () {
+    return {
+      shop: {},
+      commodity: [],
+      brands: []
+    }
+  },
+  mounted: function () {
+    this.init()
+  },
+  methods: {
+    init () {
+      var that = this
+      this.shop = this.$store.state.user
+      // fydebug@20190430这里业务逻辑和我自己想的不一样
+      // this.brands = JSON.parse(JSON.stringify(this.$getFlash('flash').brands))
+      try {
+        this.getBrand()
+        this.getModel()
+      } catch (e) {
+        // error code
       }
     },
-    mounted:function(){
-      var that = this;
-      this.shop = this.$store.state.user;
-      //fydebug@20190430这里业务逻辑和我自己想的不一样
-      //this.brands = JSON.parse(JSON.stringify(this.$getFlash('flash').brands))
-      (async () => {
-        let res1 = await this.$tkParse.get('/classes/brand', {
-          params: {  // url参数
+    async getBrand () {
+      let res1 = await this.$tkParse.get('/classes/brand', {
+        params: { // url参数
 
-          },
-        });
-        this.brands = res1.data.results
-
-        //昂，这一页和之前商品列表是差不多的，再次验证了一下查询逻辑，之前的就先不改了
-        let res2 = await this.$tkParse.get('/classes/model',{
-          params: {  // url参数
-            where:{
-              user:this.shop.objectId
-            }
-          }
-        });
-        this.commodity = res2.data.results;
-      })();
+        }
+      })
+      this.brands = res1.data.results
     },
-    methods:{
-      back:function(){
-        this.$push('/merchant-index');
-      },
-      goBikeBrand:function(opt){
-        this.$setFlash('flash',{
-          shop:this.userInfo,
-          brands:this.brands,
-          brand:opt
-        });
-        this.$push('/bike-brand');
-      },
-      newBike:function(opt){
-        this.$push({
-          path:'/new-bike',
-          flash:{
-            flash:{
-              shop:this.userInfo,
-              brands:this.brands
-            }
+    async getModel () {
+      let res2 = await this.$tkParse.get('/classes/model', {
+        params: { // url参数
+          where: {
+            user: this.shop.objectId
           }
-        });
-      }
+        }
+      })
+      this.commodity = res2.data.results
+    },
+    back: function () {
+      this.$push('/merchant-index')
+    },
+    goBikeBrand: function (opt) {
+      this.$setFlash('flash', {
+        shop: this.userInfo,
+        brands: this.brands,
+        brand: opt
+      })
+      this.$push('/bike-brand')
+    },
+    newBike: function (opt) {
+      this.$push({
+        path: '/new-bike',
+        flash: {
+          flash: {
+            shop: this.userInfo,
+            brands: this.brands
+          }
+        }
+      })
     }
   }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -106,9 +115,9 @@
     width:60px;
     border-radius:30px;
     position:fixed;
-    bottom:1rem;
-    right:1rem;
-    font-size:3rem;
+    bottom:16px;
+    right:16px;
+    font-size:50px;
     border:1px solid #ccc;
     text-align:center;
     background:rgba(0, 145, 255, 1);
@@ -124,31 +133,31 @@
   }
 
   .tkui-list-item {
-    padding:0.3rem 1rem;
+    padding:5px 16px;
     .list-item-content {
       .content {
-        padding: 0.3rem;
+        padding: 5px;
         text-align:left;
         width:100%;
         .title {
-          margin-bottom:0.3rem;
+          margin-bottom:5px;
           .pull-right {
             float:right;
             display: block;
-            font-size:0.5rem;
+            font-size:8px;
             font-weight:300;
           }
         }
         .des {
-          font-size:0.75rem;
+          font-size:13px;
           color:#aaa;
           >span {
-            margin-right:0.5rem;
+            margin-right:8px;
           }
         }
         .price {
           color:red;
-          margin-top:0.3rem;
+          margin-top:5px;
         }
       }
     }

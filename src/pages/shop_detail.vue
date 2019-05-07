@@ -33,42 +33,42 @@
 export default {
   name: 'shop_detail',
   layout: 'shop_detail',
-  data: function() {
+  data: function () {
     return {
-      shop:{},
-      commodity:[],
+      shop: {},
+      commodity: []
     }
   },
-  mounted:function(){
-    this.shop = this.$getFlash('flash').shop;
-    this.init();
+  mounted: function () {
+    this.shop = this.$getFlash('flash').shop
+    this.init()
   },
-  methods:{
-    init (){
-      try{
-        this.getCommodity();
-      }catch(e){
-        //code
+  methods: {
+    init () {
+      try {
+        this.getCommodity()
+      } catch (e) {
+        // code
       }
     },
-    async getCommodity(){
-      let res = await this.$tkParse.get('/classes/model',{
-        params: {  // url参数
-          where:{
-            user:this.shop.user.objectId
+    async getCommodity () {
+      let res = await this.$tkParse.get('/classes/model', {
+        params: { // url参数
+          where: {
+            user: this.shop.user.objectId
           }
         }
-      }).catch(err=>{
-        //error code
-      });
-      this.commodity = res.data.results;
+      }).catch(err => {
+        // error code
+      })
+      this.commodity = res.data.results
     },
-    goCommodityPage:function(opt){
-      this.$setFlash('flash',{
-        commodity:opt,
-        shop:this.shop
-      });
-      this.$push('/commodity-detail');
+    goCommodityPage: function (opt) {
+      this.$setFlash('flash', {
+        commodity: opt,
+        shop: this.shop
+      })
+      this.$push('/commodity-detail')
     }
   }
 }

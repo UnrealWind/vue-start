@@ -1,7 +1,7 @@
 <template>
   <tk-container>
     <tkui-header center>
-      <tkui-button slot="left" class="icon" @click="back()">
+      <tkui-button slot="left" class="icon" @click="$back">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>商家主页
     </tkui-header>
@@ -49,82 +49,82 @@
 export default {
   name: 'merchant-index',
   layout: 'merchant-index',
-  data: function() {
+  data: function () {
     return {
-      userInfo:{},
-      mainBrand:[]
+      userInfo: {},
+      mainBrand: []
     }
   },
-  activated:function(){
-
+  mounted: function () {
+    this.userInfo = this.$store.state.user
+    this.init()
   },
-  mounted:function(){
-    this.userInfo = this.$store.state.user;
-    (async () => {
+  methods: {
+    init () {
+      this.getBrand()
+    },
+    async getBrand () {
       let res = await this.$tkParse.get('/classes/brand', {
-        params: {  // url参数
+        params: { // url参数
 
-        },
-      });
+        }
+      }).catch(err => {
+        // err code
+      })
       this.mainBrand = res.data.results
-    })();
-  },
-  methods:{
-    logout:function(){
-      this.$replace('/login');
     },
-    goBrandDetail:function(n,i){
-      let brand = this.getBrands();
+    logout: function () {
+      this.$replace('/login')
+    },
+    goBrandDetail: function (n, i) {
+      let brand = this.getBrands()
       this.$push({
-        path:'/brand-detail',
-        flash:{
-          flash:{
-            brands:brand
+        path: '/brand-detail',
+        flash: {
+          flash: {
+            brands: brand
           }
         }
-      });
+      })
     },
-    goChangePassword:function (){
+    goChangePassword: function () {
       this.$push({
-        path:'/change-password',
-        flash:{
+        path: '/change-password',
+        flash: {
 
         }
-      });
+      })
     },
-    goShopAddress:function(){
+    goShopAddress: function () {
       this.$push({
-        path:'/shop-address',
-        flash:{
+        path: '/shop-address',
+        flash: {
 
         }
-      });
+      })
     },
-    gobikeList:function(){
+    gobikeList: function () {
       this.$push({
-        path:'/bike-list',
-        flash:{
-          flash:{
-            shop:this.userInfo,
-            brands:this.mainBrand
+        path: '/bike-list',
+        flash: {
+          flash: {
+            shop: this.userInfo,
+            brands: this.mainBrand
           }
         }
-      });
+      })
     },
-    getBrands:function(){
-      let that = this;
-      let brand = JSON.parse(JSON.stringify(this.mainBrand));
-      !that.userInfo.mainBrand?that.userInfo.mainBrand = []:'';
-      brand.forEach((n,i)=>{
-        !n['active']?n['active'] = false:'';
-        that.userInfo.mainBrand.forEach((ni,ii)=>{
-          ni == n.objectId ? n['active'] = true:'';
+    getBrands: function () {
+      let that = this
+      let brand = JSON.parse(JSON.stringify(this.mainBrand))
+      !that.userInfo.mainBrand ? that.userInfo.mainBrand = [] : ''
+      brand.forEach((n, i) => {
+        !n['active'] ? n['active'] = false : ''
+        that.userInfo.mainBrand.forEach((ni, ii) => {
+          ni == n.objectId ? n['active'] = true : ''
         })
       })
-      return brand;
-    },
-    back:function(){
-      this.$back();
+      return brand
     }
   }
 }
@@ -132,7 +132,7 @@ export default {
 
 <style lang="scss" scoped>
   .tkui-button.special {
-    margin-top:3rem;
+    margin-top:50px;
     background-color: #fff;
     color:red;
   }

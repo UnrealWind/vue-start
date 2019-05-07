@@ -38,51 +38,51 @@
 export default {
   name: 'cart-detail',
   layout: 'cart-detail',
-  data: function() {
+  data: function () {
     return {
-      cart:{},
-      totalPrice:0,
-      paidStatus:'',
-      cart_objectId:this.$getFlash('flash').cart_objectId
+      cart: {},
+      totalPrice: 0,
+      paidStatus: '',
+      cart_objectId: this.$getFlash('flash').cart_objectId
     }
   },
-  mounted:function(){
-    this.init();
+  mounted: function () {
+    this.init()
   },
-  methods:{
-    init(){
-      this.getOrder();
+  methods: {
+    init () {
+      this.getOrder()
     },
-    async getOrder(){
-      let cart = this.cart;
-      let res = await this.$tkParse.get('/classes/order',{
-        params: {  // url参数
-          where:{
-            objectId:this.$getFlash('flash').cart_objectId
+    async getOrder () {
+      let cart = this.cart
+      let res = await this.$tkParse.get('/classes/order', {
+        params: { // url参数
+          where: {
+            objectId: this.$getFlash('flash').cart_objectId
           }
         }
-      }).catch(err=>{
-        //error code
-      });
+      }).catch(err => {
+        // error code
+      })
 
-      //适配器
-      res.data.results.forEach((n,i)=>{
-        n.detail.forEach((ni,yi)=>{
-          !cart[ni.shop.objectId]?cart[ni.shop.objectId] = [ni]:cart[ni.shop.objectId].push(ni);
+      // 适配器
+      res.data.results.forEach((n, i) => {
+        n.detail.forEach((ni, yi) => {
+          !cart[ni.shop.objectId] ? cart[ni.shop.objectId] = [ni] : cart[ni.shop.objectId].push(ni)
         })
-      });
+      })
 
-      switch (res.data.results[0].status){
-        case 'unpaid':this.paidStatus = '未付款';break;
-        case 'complete':this.paidStatus = '已完成';break;
-        case 'close':this.paidStatus = '已关闭';break;
+      switch (res.data.results[0].status) {
+        case 'unpaid':this.paidStatus = '未付款'; break
+        case 'complete':this.paidStatus = '已完成'; break
+        case 'close':this.paidStatus = '已关闭'; break
       }
 
-      this.totalPrice = res.data.results[0].totalFee;
+      this.totalPrice = res.data.results[0].totalFee
     },
-    back:function(){
-      this.$replace('/');
-    },
+    back: function () {
+      this.$replace('/')
+    }
   }
 }
 </script>
@@ -179,4 +179,3 @@ export default {
     color:#fff;
   }
 </style>
-

@@ -43,28 +43,28 @@
 export default {
   name: 'user',
   layout: 'home',
-  data: function() {
+  data: function () {
     return {
-      speImg:'http://moke-store.oss-cn-beijing.aliyuncs.com/7ee4acc4-75c8-4812-8d3b-b970d54de161.png',
-      userInfo:{}
+      speImg: 'http://moke-store.oss-cn-beijing.aliyuncs.com/7ee4acc4-75c8-4812-8d3b-b970d54de161.png',
+      userInfo: {}
     }
   },
-  mounted:function(){
-    this.userInfo = this.$store.state.user;
+  mounted: function () {
+    this.userInfo = this.$store.state.user
   },
-  methods:{
-    goOrderList:function(type){
+  methods: {
+    goOrderList: function (type) {
       this.$push({
         path: '/order-list',
         flash: {
           orderType: type
         }
-      });
+      })
     },
-    goPersional:function(){
+    goPersional: function () {
       this.$push('/persion-info')
     },
-    goHelpFeedback:function(){
+    goHelpFeedback: function () {
       this.$push('/help-feedback')
     }
   }
