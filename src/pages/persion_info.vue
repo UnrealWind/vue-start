@@ -82,10 +82,11 @@ export default {
       this.file = res1.data
       let res2 = await this.$tkParse.put('/classes/_User/' + this.$store.state.user.objectId, {
         avatar: this.file.url
-      }, {}).catch(err => {
-        // error code
+      }, {}).catch(e => {
+        this.$tkGlobal.toast.add('修改失败，请重试！')
       })
-      res2.status == '200' ? (this.$tkGlobal.toast.add('修改成功！'), this.$store.commit('add', { key: 'avatar', value: res1.url })) : this.$tkGlobal.toast.add('修改失败，请重试！')
+      this.$tkGlobal.toast.add('修改成功！')
+      this.$store.commit('add', { key: 'avatar', value: res1.url })
     },
     showModel () {
       this.show = true
@@ -96,9 +97,12 @@ export default {
     async save () {
       let res2 = await this.$tkParse.put('/classes/_User/' + this.$store.state.user.objectId, {
         username: this.userInfo.username
-      }, {})
+      }, {}).catch(e => {
+        this.$tkGlobal.toast.add('修改失败，请重试！')
+      })
       this.show = false
-      res2.status == '200' ? (this.$tkGlobal.toast.add('修改成功！'), this.$store.commit('add', { key: 'username', value: this.userInfo.username })) : this.$tkGlobal.toast.add('修改失败，请重试！')
+      this.$tkGlobal.toast.add('修改成功！')
+      this.$store.commit('add', { key: 'username', value: this.userInfo.username })
     }
   }
 }

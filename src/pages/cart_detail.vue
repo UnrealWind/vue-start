@@ -72,6 +72,7 @@ export default {
         })
       })
 
+      //这里任意一条数据的状态就代表了整个订单的状态，所以用的第一条数据的
       switch (res.data.results[0].status) {
         case 'unpaid':this.paidStatus = '未付款'; break
         case 'complete':this.paidStatus = '已完成'; break

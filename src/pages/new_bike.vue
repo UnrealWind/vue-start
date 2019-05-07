@@ -112,8 +112,11 @@ export default {
         modelName: this.bikeName,
         configInfo: this.des,
         brand: this.brand
+      }).catch(e => {
+        this.$tkGlobal.toast.add('新增车型失败！')
       })
-      res.status == '200' || res.status == '201' ? (this.$tkGlobal.toast.add('新增车型成功！'), this.back()) : this.$tkGlobal.toast.add('新增车型失败！')
+      this.$tkGlobal.toast.add('新增车型成功！')
+      this.back()
     },
     async putModel () {
       let res = await this.$tkParse.put('/classes/model/' + this.$getFlash('flash').bike.objectId, {
@@ -123,8 +126,11 @@ export default {
         modelName: this.bikeName,
         configInfo: this.des,
         brand: this.brand
+      }).catch(e => {
+        this.$tkGlobal.toast.add('修改车型失败！')
       })
-      res.status == '200' || res.status == '201' ? (this.$tkGlobal.toast.add('修改车型成功！'), this.back()) : this.$tkGlobal.toast.add('修改车型成功！')
+      this.$tkGlobal.toast.add('修改车型成功！')
+      this.back()
     },
     commit () {
       !this.$getFlash('flash').bike ? this.postModel() : this.putModel()
