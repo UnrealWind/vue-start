@@ -82,7 +82,9 @@ export default {
       this.file = res1.data;
       let res2 = await this.$tkParse.put('/classes/_User/'+this.$store.state.user.objectId,{
         avatar:this.file.url
-      },{})
+      },{}).catch(err=>{
+        //error code
+      })
       res2.status == '200'?(this.$tkGlobal.toast.add('修改成功！'),this.$store.commit('add',{key:'avatar',value:res1.url})):this.$tkGlobal.toast.add('修改失败，请重试！')
     },
     showModel(){

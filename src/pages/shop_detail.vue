@@ -58,6 +58,8 @@ export default {
             user:this.shop.user.objectId
           }
         }
+      }).catch(err=>{
+        //error code
       });
       this.commodity = res.data.results;
     },

@@ -61,6 +61,8 @@ export default {
             objectId:this.$getFlash('flash').cart_objectId
           }
         }
+      }).catch(err=>{
+        //error code
       });
 
       //适配器

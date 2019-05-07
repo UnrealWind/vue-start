@@ -70,7 +70,9 @@ export default {
         detail:detail,
         status:'unpaid',
         totalFee:this.totalPrice
-      })
+      }).catch(err=>{
+        //error code
+      });
       this.$push('/cart-detail');
       this.$setFlash('flash',{
         cart_objectId:res.data.objectId,
