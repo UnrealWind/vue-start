@@ -48,7 +48,6 @@ export default {
   },
   methods: {
     init () {
-      var that = this
       this.shop = this.$store.state.user
       // fydebug@20190430这里业务逻辑和我自己想的不一样
       // this.brands = JSON.parse(JSON.stringify(this.$getFlash('flash').brands))

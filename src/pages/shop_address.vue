@@ -109,13 +109,13 @@ export default {
     },
     initMap: function () {
       let that = this
-      var map = new AMap.Map('container', {
+      let map = new AMap.Map('container', {
         resizeEnable: true,
         zoom: 13
       })
 
       let mapMarker = () => {
-        var markers = [{
+        let markers = [{
           icon: '//a.amap.com/jsapi_demos/static/demo-center/icons/poi-marker-1.png',
           position: [this.location.longitude, this.location.latitude]
         }]
@@ -138,7 +138,7 @@ export default {
           latitude: e.lnglat.lat,
           longitude: e.lnglat.lng
         }
-        var markers = [{
+        let markers = [{
           icon: '//a.amap.com/jsapi_demos/static/demo-center/icons/poi-marker-1.png',
           position: [e.lnglat.lng, e.lnglat.lat]
         }]
