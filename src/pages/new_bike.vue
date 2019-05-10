@@ -1,6 +1,6 @@
 <template>
   <tk-container class="shop">
-    <tkui-header background="white" color="#333" center>
+    <tkui-header slot="header" background="white" color="#333" center>
       <tkui-button slot="left" class="icon" @click="back()">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>
@@ -101,7 +101,7 @@ export default {
           this.btnType = true
         })()
       }).catch(e => {
-        window.alert(e.message)
+        throw e
       })
     },
     async postModel () {
@@ -114,6 +114,7 @@ export default {
         brand: this.brand
       }).catch(e => {
         this.$tkGlobal.toast.add('新增车型失败！')
+        throw e
       })
       this.$tkGlobal.toast.add('新增车型成功！')
       this.back()
@@ -128,6 +129,7 @@ export default {
         brand: this.brand
       }).catch(e => {
         this.$tkGlobal.toast.add('修改车型失败！')
+        throw e
       })
       this.$tkGlobal.toast.add('修改车型成功！')
       this.back()

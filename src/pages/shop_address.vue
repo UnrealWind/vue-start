@@ -81,6 +81,7 @@ export default {
         }
       }).catch(e => {
         // err code
+        throw e
       })
       this.shopName = res.shopName
       this.location = res.location
@@ -103,6 +104,7 @@ export default {
         txtLocation: this.address
       }).catch(e => {
         // err code
+        throw e
       })
       this.$refs.toast.add('店铺修改成功！')
       this.shopId = res.data.objectId
@@ -163,7 +165,7 @@ export default {
           this.file = res1.data
         })()
       }).catch(e => {
-        window.alert(e.message)
+        throw e
       })
     }
   }

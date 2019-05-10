@@ -1,6 +1,6 @@
 <template>
   <tk-container class="brand">
-    <tkui-header center>
+    <tkui-header slot="header" center>
       <tkui-button slot="left" class="icon" @click="back()">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>选择品牌
@@ -21,12 +21,24 @@ export default {
   layout: 'brand-detail',
   data: function () {
     return {
-      brands: []
+
     }
   },
   mounted: function () {
-    this.brands = JSON.parse(JSON.stringify(this.$getFlash('flash').brands))
     this.userInfo = JSON.parse(JSON.stringify(this.$store.state.user))
+  },
+
+  // 查了查 vue 这个computed会缓存这个属性 --- 计算属性是基于它们的响应式依赖进行缓存的
+  //  https://segmentfault.com/a/1190000010408657  可以看一下这个
+  computed: {
+    brands: {
+      get () {
+        return JSON.parse(JSON.stringify(this.$route.query.brands))
+      },
+      set () {
+        //
+      }
+    }
   },
   methods: {
     back: function () {
@@ -46,6 +58,7 @@ export default {
         mainBrand: this.userInfo.mainBrand
       }, {}).catch(err => {
         // err code
+        throw err
       })
       this.$store.commit('setUser', this.userInfo)
     }

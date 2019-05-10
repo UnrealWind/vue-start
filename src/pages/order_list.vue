@@ -1,6 +1,6 @@
 <template>
   <tk-container>
-    <tkui-header center>
+    <tkui-header slot="header" center>
       <tkui-button slot="left" class="icon" @click="$back">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>订单
@@ -155,6 +155,7 @@ export default {
         }
       }).catch(err => {
         // error code
+        throw err
       })
       this.orders = res.data.results
 

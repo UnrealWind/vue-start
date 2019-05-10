@@ -1,6 +1,6 @@
 <template>
   <tk-container>
-    <tkui-header center>
+    <tkui-header slot="header" center>
       <tkui-button slot="left" class="icon" @click="$back">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>
@@ -45,6 +45,7 @@ export default {
         password: this.newPassWord
       }, {}).catch(e => {
         this.$tkGlobal.toast.add('修改失败，请重试！')
+        throw err
       })
       this.$tkGlobal.toast.add('修改成功！')
       this.$store.commit('setSessionToken', res.data.sessionToken)

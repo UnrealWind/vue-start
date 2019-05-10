@@ -1,6 +1,6 @@
 <template>
   <tk-container class="commodity">
-    <tkui-header background="white" color="#333" center>
+    <tkui-header slot="header" background="white" color="#333" center>
       <tkui-button slot="left" class="icon" @click="back()">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>

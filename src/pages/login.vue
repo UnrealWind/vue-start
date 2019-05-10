@@ -1,6 +1,6 @@
 <template>
   <tk-container class="login">
-    <tkui-header background="white" color="#333" center>
+    <tkui-header slot="header" background="white" color="#333" center>
       登录
     </tkui-header>
     <div class="tab-bar">
@@ -68,6 +68,7 @@ export default {
         password: this.password
       }).catch(e => {
         this.$tkGlobal.toast.add('登录失败！请重试！')
+        throw e
       })
       return res
     },
@@ -79,6 +80,7 @@ export default {
         code: this.code
       }).catch(e => {
         this.$tkGlobal.toast.add('登录失败！请重试！')
+        throw e
       })
       return res
     },

@@ -1,6 +1,6 @@
 <template>
   <tk-container>
-    <tkui-header center>
+    <tkui-header slot="header" center>
       <tkui-button slot="left" class="icon" @click="$back">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>个人主页
@@ -74,7 +74,7 @@ export default {
         this.change()
       })
         .catch(e => {
-          window.alert(e.message)
+          throw e
         })
     },
     async change () {
@@ -84,6 +84,7 @@ export default {
         avatar: this.file.url
       }, {}).catch(e => {
         this.$tkGlobal.toast.add('修改失败，请重试！')
+        throw e
       })
       this.$tkGlobal.toast.add('修改成功！')
       this.$store.commit('add', { key: 'avatar', value: res1.url })
@@ -99,6 +100,7 @@ export default {
         username: this.userInfo.username
       }, {}).catch(e => {
         this.$tkGlobal.toast.add('修改失败，请重试！')
+        throw e
       })
       this.show = false
       this.$tkGlobal.toast.add('修改成功！')

@@ -1,6 +1,6 @@
 <template>
   <tk-container  class="index">
-      <tkui-header center>
+      <tkui-header slot="header" >
         <tkui-button  @click="goCityChose()" slot="left" class="icon">
           <tk-icon>Positioning</tk-icon>
         </tkui-button>
@@ -10,7 +10,7 @@
           <tkui-button @click="scan" class="icon">
             <tk-icon>Scan</tk-icon>
           </tkui-button>
-        </div>
+        </div>z
       </tkui-header>
 
       <tk-slider loop autoPlay>
@@ -18,9 +18,7 @@
           <tk-image style="width: 100%;" :src="image.image" width="1200" height="600"></tk-image>
         </div>
       </tk-slider>
-
-      <tk-image height="50" :src="speImg"></tk-image>
-
+      <div class="center"><tk-image height="50" :src="speImg"></tk-image></div>
       <tkui-list>
         <tkui-list-item divider v-for="opt in shop" v-if="opt && opt.shopName.indexOf(search)>-1">
           <tk-image slot="left"  :src="opt.storePhoto" width="1200" height="600" class="avatar"></tk-image>
@@ -64,6 +62,9 @@ export default {
       this.init()
     })
   },
+  computed: {
+    //这个页面感觉不是很有必要用这个
+  },
   methods: {
     init: function () {
       try {
@@ -72,6 +73,7 @@ export default {
         this.getShop()
       } catch (e) {
         // code
+        throw e
       }
     },
     async getSlider () {
@@ -87,7 +89,6 @@ export default {
       this.brands = res.data.results
     },
     async getShop () {
-      let that = this
       let res = await this.$tkParse.get('/classes/shop', {
         params: {
           include: 'user'
@@ -97,7 +98,7 @@ export default {
 
       // 获取数据的时候算一下距离
       this.shop.forEach((n, i) => {
-        n['position'] = that.getPosition([n.location.latitude, n.location.longitude])
+        n['position'] = this.getPosition([n.location.latitude, n.location.longitude])
       })
 
       this.shop.sort(function (a, b) {
@@ -126,6 +127,7 @@ export default {
         .catch(e => {
           console.log(e.type) // 错误类型, cancel 代表用户主动取消扫码， error代表其他错误
           console.log(e.message) // 错误说明
+          throw e
         })
     },
     async getLocal () {
@@ -133,12 +135,11 @@ export default {
       let position = await this.$tkGeolocation.getCurrentPosition({
         parse: true
       })
-      this.city = position.name
+      this.$getFlash('city') ? this.city = this.$getFlash('city').name : this.city = position.name
       this.location = [position.latitude, position.longitude]
     },
     getPosition: function (posi1) {
-      let that = this
-      function distance (lat1, lng1, lat2, lng2) {
+      /* function distance (lat1, lng1, lat2, lng2) {
         let radLat1 = lat1 * Math.PI / 180.0
         let radLat2 = lat2 * Math.PI / 180.0
         let a = radLat1 - radLat2
@@ -148,11 +149,14 @@ export default {
         s = s * 6378.137// EARTH_RADIUS;
         s = Math.round(s * 100) / 100
         return s
-      };
-
-      return (() => {
-        return distance(posi1[0], posi1[1], that.location[0], that.location[1])
-      })()
+      }; */
+      return this.$tkHelper.distance({
+        latitude: posi1[0],
+        longitude: posi1[1]
+      }, {
+        latitude: this.location[0],
+        longitude: this.location[1]
+      }, 'km')
     },
     goCityChose () {
       this.$push({
@@ -218,12 +222,14 @@ export default {
   }
 
   .city {
-    /*display: inline-flex;*/
-    font-size:12px;
+    font-size:13px;
     width:40px;
-    position:absolute;
-    top:16px;
-    left:50px;
+    margin-right:10px;
+    position:relative;
+    left:-10px;
+  }
+  .center {
+    text-align:center;
   }
 
 </style>

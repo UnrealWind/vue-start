@@ -1,6 +1,6 @@
 <template>
   <tk-container class="shop">
-    <tkui-header background="white" color="#333" center>
+    <tkui-header slot="header" background="white" color="#333" center>
       <tkui-button slot="left" class="icon" @click="$back()">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>
@@ -49,6 +49,7 @@ export default {
         this.getCommodity()
       } catch (e) {
         // code
+        throw e
       }
     },
     async getCommodity () {
@@ -60,6 +61,7 @@ export default {
         }
       }).catch(err => {
         // error code
+        throw err
       })
       this.commodity = res.data.results
     },

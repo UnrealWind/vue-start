@@ -1,6 +1,6 @@
 <template>
-  <tk-container class="shop">
-    <tkui-header background="white" color="#333" center>
+  <tk-container :status="status" class="shop">
+    <tkui-header slot="header" background="white" color="#333" center>
       <tkui-button slot="left" class="icon" @click="back()">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>
@@ -10,7 +10,7 @@
     <tkui-list v-if="shop && shop.objectId && commodity && commodity.length>0">
       <span @click="goNewBike(opt)" v-for="opt in commodity">
         <tkui-list-item  divider >
-        <img slot="left" v-bind:src="opt.tagImg" class="avatar" />
+        <tk-image slot="left"  :src="opt.tagImg"  class="avatar"></tk-image>
         <div class="content" >
           <div class="title">{{opt.modelName}}</div>
           <div class="des">{{opt.configInfo}}</div>
@@ -28,7 +28,9 @@
       </tkui-list-item>
     </tkui-list>
 
-    <div @click="newBike()" class="circle-btn">+</div>
+    <tkui-button class="circle-btn" icon raised @click="newBike()">
+      <tk-icon color="#fff">plus</tk-icon>
+    </tkui-button>
 
   </tk-container>
 </template>
@@ -41,7 +43,8 @@ export default {
     return {
       shop: {},
       commodity: [],
-      brand: null
+      brand: null,
+      status: 'loading'
     }
   },
   mounted: function () {
@@ -56,15 +59,19 @@ export default {
       this.brand = this.$getFlash('flash').brand
 
       // 昂，这一页和之前商品列表是差不多的，再次验证了一下查询逻辑，之前的就先不改了
-      let res = await this.$tkParse.get('/classes/model', {
+      let res = await this.$tkParse.getList('/classes/model', {
         params: { // url参数
           where: {
             user: this.shop.objectId,
             brand: this.brand.objectId
           }
         }
+      }).catch(e=>{
+        this.status = 'error'
+        throw e
       })
-      this.commodity = res.data.results
+      this.commodity = res
+      this.commodity.length > 0 ? this.status = false : this.status = 'empty'
     },
     back: function () {
       this.$setFlash('flash', {
@@ -107,15 +114,10 @@ export default {
   }
 
   .circle-btn {
-    height:60px;
-    width:60px;
-    border-radius:30px;
     position:fixed;
     bottom:16px;
     right:16px;
     font-size:50px;
-    border:1px solid #ccc;
-    text-align:center;
     background:rgba(0, 145, 255, 1);
     color:#fff;
     z-index:999;
@@ -154,6 +156,10 @@ export default {
         }
       }
     }
+  }
+  .tkui-header {
+    position: relative;
+    z-index: 999;
   }
 
 </style>

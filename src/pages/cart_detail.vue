@@ -1,6 +1,6 @@
 <template>
   <tk-container>
-    <tkui-header center>
+    <tkui-header slot="header" center>
       <tkui-button slot="left" class="icon" @click="back()">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>订单详情
@@ -25,7 +25,7 @@
         </div>
       </tkui-list-item>
     </tkui-list>
-    <tk-flex wrap class="qrcode">
+    <tk-flex wrap class="qrcode"  slot="footer">
       <div class="item tk-grid-3"><h4>订单码</h4></div>
       <div class="item tk-grid-9"><tk-qrcode :value="cart_objectId"></tk-qrcode></div>
       <div class="item tk-grid-3"><h4>合计实付款：</h4></div>
@@ -41,9 +41,14 @@ export default {
   data: function () {
     return {
       cart: {},
-      totalPrice: 0,
       paidStatus: '',
-      cart_objectId: this.$getFlash('flash').cart_objectId
+      cart_objectId: this.$getFlash('flash').cart_objectId,
+      order:{},
+    }
+  },
+  computed: {
+    totalPrice () {
+      return this.order.totalFee || 0
     }
   },
   mounted: function () {
@@ -54,8 +59,7 @@ export default {
       this.getOrder()
     },
     async getOrder () {
-      let cart = this.cart
-      let res = await this.$tkParse.get('/classes/order', {
+      let res = await this.$tkParse.getFirst('/classes/order', {
         params: { // url参数
           where: {
             objectId: this.$getFlash('flash').cart_objectId
@@ -63,23 +67,21 @@ export default {
         }
       }).catch(err => {
         // error code
+        throw err
       })
+      this.order = res
 
       // 适配器
-      res.data.results.forEach((n, i) => {
-        n.detail.forEach((ni, yi) => {
-          !cart[ni.shop.objectId] ? cart[ni.shop.objectId] = [ni] : cart[ni.shop.objectId].push(ni)
-        })
+      res.detail.forEach((ni, yi) => {
+        !this.cart[ni.shop.objectId] ? this.cart[ni.shop.objectId] = [ni] : this.cart[ni.shop.objectId].push(ni)
       })
 
-      //这里任意一条数据的状态就代表了整个订单的状态，所以用的第一条数据的
-      switch (res.data.results[0].status) {
+      // 这里任意一条数据的状态就代表了整个订单的状态，所以用的第一条数据的
+      switch (res.status) {
         case 'unpaid':this.paidStatus = '未付款'; break
         case 'complete':this.paidStatus = '已完成'; break
         case 'close':this.paidStatus = '已关闭'; break
       }
-
-      this.totalPrice = res.data.results[0].totalFee
     },
     back: function () {
       this.$replace('/')

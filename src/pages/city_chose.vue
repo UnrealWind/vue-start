@@ -1,6 +1,7 @@
 <template>
-  <tk-container hideStatusBar infiniteScroll @loadingMore="loadingMore">
-    <tkui-header center>
+  <!-- hideStatusBar infiniteScroll @loadingMore="loadingMore"-->
+  <tk-container>
+    <tkui-header slot="header" center>
       <tkui-button slot="left" class="icon" @click="$back">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>定位
@@ -18,11 +19,13 @@
     </tkui-list>
 
     <tkui-list small>
-      <span  v-for="opt in targetList"  @click="setCity(opt)">
-        <tkui-list-item>
-        <tk-icon slot="left">list</tk-icon>
-        {{opt.name}}
-      </tkui-list-item>
+      <span  v-for="(opts,key) in targetList">
+        <h3>{{key}}</h3>
+          <span v-for="(opt,index) in opts"  @click="setCity(opt)">
+            <tkui-list-item>
+              <h4>{{opt.name}}</h4>
+            </tkui-list-item>
+          </span>
       </span>
     </tkui-list>
 
@@ -38,20 +41,32 @@ export default {
       targetCity: '加载中',
       cityList: [],
       perPage: 20,
-      targetList: []
+      targetList: {}
     }
   },
   mounted: function () {
-    // 这页原型那种方法感觉蛮奇怪的，还需要根据首字母进行匹配重新生成数据，也没有导航，个人感觉还是使用城市选择器，使用城市选择器的话，这一页完全可以省略
-    // 直接在上一页按钮上使用即可，这一页默认作为展示无限加载的页面吧。
     this.targetCity = this.$getFlash('targetCity')
     this.init()
   },
   methods: {
     init () {
+      let city = {}
       this.cityList = this.$tkRegions.getCityList()
+      this.cityList.forEach((n, i) => {
+        !city[n.pinyin[0]] ? city[n.pinyin[0]] = [n] : city[n.pinyin[0]].push(n)
+      })
+      this.targetList = this.sortKey(city)
     },
-    loadingMore: function (page, next) {
+    sortKey (obj) {
+      let newkey = Object.keys(obj).sort()
+      // 先用Object内置类的keys方法获取要排序对象的属性名，再利用Array原型上的sort方法对获取的属性名进行排序，newkey是一个数组
+      let newObj = {}// 创建一个新的对象，用于存放排好序的键值对
+      for (var i = 0; i < newkey.length; i++) { // 遍历newkey数组
+        newObj[newkey[i]] = obj[newkey[i]]// 向新创建的对象中按照排好的顺序依次增加键值对
+      }
+      return newObj// 返回排好序的新对象
+    },
+    /* loadingMore: function (page, next) {
       let that = this
       setTimeout(() => {
         // this.num = (page + 1) * this.perPage
@@ -62,8 +77,9 @@ export default {
           next('+1')
         }
       }, 1000)
-    },
+    }, */
     setCity: function (opt) {
+      // 这里想了一下，这个应该是作为筛选条件出现的，把这个传回去，然后作为筛选条件
       this.$back()
       this.$setFlash('city', opt)
     }
@@ -85,5 +101,11 @@ export default {
 
     }
   }
-
+   h3 {
+     padding: 10px 30px 5px 30px;
+   }
+  h4 {
+    font-weight:300;
+    padding: 0 20px;
+  }
 </style>

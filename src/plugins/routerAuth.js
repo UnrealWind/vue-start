@@ -19,11 +19,9 @@ const auth = [{
   },
   fallbackUrl: '' // 禁止访问的跳转地址，优先级低于handler中返回的地址
 }]
-
+/*VueTk.history.init(router, {
+  transitionMode: 'always'
+})*/
 routerAuth.then(function (res) {
-  /* fydebug 这个用过之后 flash就炸了
-  VueTk.history.init(router,{
-    transitionMode:"always"
-  }); */
   res === 'success' ? (VueTk.tkRouterAuth.init(auth, router), VueTk.history.replace('/')) : (VueTk.tkRouterAuth.init(auth, router), VueTk.history.replace('/login'))
 })

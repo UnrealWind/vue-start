@@ -1,6 +1,6 @@
 <template>
   <tk-container>
-    <tkui-header center>
+    <tkui-header slot="header" center>
       <tkui-button slot="left" class="icon" @click="$back">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>帮助反馈
@@ -30,7 +30,8 @@ export default {
         user: this.$store.state.user.objectId,
         feedBack: this.msg
       }).catch(err => {
-        this.$tkGlobal.toast.add('反馈失败git commit -m "first commit"！')
+        this.$tkGlobal.toast.add('反馈失败！')
+        throw err
       })
       this.$tkGlobal.toast.add('反馈成功！')
     }

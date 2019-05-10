@@ -10,3 +10,4 @@ for (let name in filters) {
 }
 // mixin
 Vue.mixin(mixin)
+

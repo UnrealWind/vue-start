@@ -1,6 +1,6 @@
 <template>
-  <tk-container class="shop">
-    <tkui-header background="white" color="#333" center>
+  <tk-container :status="status" class="shop">
+    <tkui-header slot="header" background="white" color="#333" center>
       <tkui-button slot="left" class="icon" @click="back()">
         <tk-icon>me1</tk-icon>
       </tkui-button>
@@ -10,7 +10,7 @@
     <tkui-list v-if=" shop && shop.objectId">
       <span v-for="brand in shop.mainBrand">
         <tkui-list-item divider v-if="brand == opt.objectId"  v-for="(opt,index) in brands">
-        <img slot="left" v-bind:src="opt.logo" class="avatar" />
+        <tk-image slot="left"  :src="opt.logo"  class="avatar"></tk-image>
         <div class="content"  @click="goBikeBrand(opt)">
           <div class="title">{{opt.name}}</div>
           <div class="des"><span v-if="opt.objectId == info.brand" v-for="(info,index) in commodity">{{info.modelName}}</span></div>
@@ -18,17 +18,9 @@
       </tkui-list-item>
       </span>
     </tkui-list>
-
-    <tkui-list v-else>
-      <tkui-list-item divider >
-        <div class="content">
-          <div class="title">没有查询到数据！请重试！</div>
-        </div>
-      </tkui-list-item>
-    </tkui-list>
-
-    <div @click="newBike()" class="circle-btn">+</div>
-
+    <tkui-button class="circle-btn" icon raised @click="newBike()">
+      <tk-icon color="#fff">plus</tk-icon>
+    </tkui-button>
   </tk-container>
 </template>
 
@@ -40,41 +32,56 @@ export default {
     return {
       shop: {},
       commodity: [],
-      brands: []
+      brands: [],
+      status: 'loading'
     }
   },
   mounted: function () {
     this.init()
   },
+  beforeRouteLeave (to, from, next) {
+
+    // 使用了这个让用户不用误操作后退键回到login页面
+    to.path == '/login' ? next(false) : next()
+  },
   methods: {
-    init () {
+    async init () {
       this.shop = this.$store.state.user
-      // fydebug@20190430这里业务逻辑和我自己想的不一样
-      // this.brands = JSON.parse(JSON.stringify(this.$getFlash('flash').brands))
+
+      // fydebug这里记一下，以前没遇到过，这里使用try catch 捕获异步操作的时候，由于js单线程的特性，异步的操作会被放进
+      // 异步回调队列中，这个时候是catch不到错误的，我可能对这个api的用法有问题，比较简单粗暴的把他打成同步的了
+      // 看了一下可以使用 batch 进行批量处理，我会在别的页面进行 batch 的使用处理这种多个请求同时进行的情况
       try {
-        this.getBrand()
-        this.getModel()
+        await this.getBrand()
+        await this.getModel()
       } catch (e) {
         // error code
+        this.status = 'error'
+        throw e
       }
     },
     async getBrand () {
-      let res1 = await this.$tkParse.get('/classes/brand', {
+      let res = await this.$tkParse.getList('/classes/brand', {
         params: { // url参数
 
         }
+      }).catch(e => {
+        throw e
       })
-      this.brands = res1.data.results
+      this.brands = res
+      this.brands.length > 0 ? this.status = false : this.status = 'empty'
     },
     async getModel () {
-      let res2 = await this.$tkParse.get('/classes/model', {
+      let res = await this.$tkParse.getList('/classes/model', {
         params: { // url参数
           where: {
             user: this.shop.objectId
           }
         }
+      }).catch(e => {
+        throw e
       })
-      this.commodity = res2.data.results
+      this.commodity = res
     },
     back: function () {
       this.$push('/merchant-index')
@@ -110,15 +117,10 @@ export default {
   }
 
   .circle-btn {
-    height:60px;
-    width:60px;
-    border-radius:30px;
     position:fixed;
     bottom:16px;
     right:16px;
     font-size:50px;
-    border:1px solid #ccc;
-    text-align:center;
     background:rgba(0, 145, 255, 1);
     color:#fff;
     z-index:999;
@@ -160,6 +162,10 @@ export default {
         }
       }
     }
+  }
+  .tkui-header {
+    position: relative;
+    z-index: 999;
   }
 
 </style>

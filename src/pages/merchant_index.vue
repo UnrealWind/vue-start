@@ -1,6 +1,6 @@
 <template>
   <tk-container>
-    <tkui-header center>
+    <tkui-header slot="header" center>
       <tkui-button slot="left" class="icon" @click="$back">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>商家主页
@@ -70,6 +70,7 @@ export default {
         }
       }).catch(err => {
         // err code
+        throw err
       })
       this.mainBrand = res.data.results
     },
@@ -78,12 +79,12 @@ export default {
     },
     goBrandDetail: function (n, i) {
       let brand = this.getBrands()
+
+      //这里测了测query，区别应该是flash会被销毁
       this.$push({
         path: '/brand-detail',
-        flash: {
-          flash: {
-            brands: brand
-          }
+        query: {
+          brands:brand,
         }
       })
     },

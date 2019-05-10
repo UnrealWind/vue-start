@@ -1,6 +1,6 @@
 <template>
   <tk-container :status="status">
-    <tkui-header center>购物车</tkui-header>
+    <tkui-header slot="header" center>购物车</tkui-header>
     <tkui-list v-for="(commoditys, shopId) in cart">
       <div class="list-header">
         <h2>{{commoditys[0].shop.shopName}}</h2>
@@ -27,19 +27,14 @@
         </div>
       </tkui-list-item>
     </tkui-list>
-
-    <div class="fix-footer-addin">
-      <div class="left">
-        <h4>
-          <span>合计：¥</span>{{totalPrice}}
-        </h4>
-      </div>
-      <tkui-button raised primary @click="chopHand()">立即购买</tkui-button>
-    </div>
+    <self-component slot="footer">
+      <footer-addin :totalPrice="totalPrice" @chopHand="chopHand"></footer-addin>
+    </self-component>
   </tk-container>
 </template>
-
 <script>
+import selfComponent from '../component/component.vue'
+import footerAddin from '../component/footer-addin.vue'
 export default {
   name: 'cart',
   layout: 'home',
@@ -51,13 +46,17 @@ export default {
       status: 'loading'
     }
   },
+  components: {
+    selfComponent,
+    footerAddin
+  },
   mounted: function () {
     this.cart = JSON.parse(JSON.stringify(this.$store.state.cart))
     this.calculationPrice()
     Object.keys(this.cart).length > 0 ? this.status = false : this.status = 'empty'
   },
   methods: {
-    async chopHand () {
+    async chopHand (mark) {
       if (JSON.stringify(this.cart) == '{}') {
         this.$tkGlobal.toast.add('请先添加商品到购物车内！')
         return false
@@ -72,6 +71,7 @@ export default {
         totalFee: this.totalPrice
       }).catch(err => {
         // error code
+        throw err
       })
       this.$push('/cart-detail')
       this.$setFlash('flash', {
@@ -147,12 +147,6 @@ export default {
         width:100%;
         .title {
           margin-bottom:5px;
-          .pull-right {
-            float:right;
-            display: block;
-            font-size:8px;
-            font-weight:300;
-          }
         }
         .des {
           font-size:11px;
@@ -184,25 +178,4 @@ export default {
     }
   }
 
-  .fix-footer-addin {
-    background-color: #fff;
-    width: 100%;
-    height:50px;
-    margin-top:16px;
-    .left{
-      padding:16px;
-      color:red;
-      float:left;
-      font-size:18px;
-      span {
-        font-size:8px;
-      }
-    }
-    .tkui-button {
-      float: right;
-      margin:0;
-      border-radius:0;
-      height: 100%;
-    }
-  }
 </style>
