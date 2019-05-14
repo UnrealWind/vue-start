@@ -1,24 +1,16 @@
 import { tkParse } from '@moke/vue-tk'
 import store from '../store/index'
 
-let routerAuth
-export default routerAuth = (async () => {
+export default async () => {
   // TODO: 完成用户自动登录
-  return tkParse.get('/users/me')
-    .then(function (response) {
-      // 这里还用了200校验的原因是，不太清楚后台会不会返回 status = '404' 这种状态码和实际场景不符的骚操作，
-      response.status == '200'
-        ? (() => {
-          store.commit('setSessionToken', response.data.sessionToken)
-          store.commit('setUser', response.data.username)
-          return 'success'
-        })() : (() => {
-          store.commit('setSessionToken', null)
-          return 'error'
-        })()
-    })
-    .catch(function (error) {
-      store.commit('setSessionToken', null)
-      return 'error'
-    })
-})()
+  if (!store.state.sessionToken) return;
+  VueTk.tkParse.setSessionToken(store.state.sessionToken)
+
+  //这里文档描述的是使用get，但是每次都会报错，应该使用getData
+  let res = await VueTk.tkParse.getData('/users/me').catch(e => {
+    store.commit('setSessionToken', null)
+    VueTk.tkParse.setSessionToken(null)
+    throw e
+  })
+  store.commit('setUser', res)
+}

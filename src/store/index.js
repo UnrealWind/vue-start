@@ -21,13 +21,15 @@ const store = new Vuex.Store({
     setUser (state, user) {
       state.user = user
     },
+
+    //这里购物车的数据需要按照之前做一下适配然后存起来
     setCart (state, cart) {
-      !state.cart[cart.shop.objectId] ? state.cart[cart.shop.objectId] = [cart] : (async () => {
+      !state.cart[cart.shop] ? state.cart[cart.shop] = [cart] : (() => {
         let has
-        state.cart[cart.shop.objectId].forEach(function (n, i) {
+        state.cart[cart.shop].forEach(function (n, i) {
           n.objectId == cart.objectId ? (n.quantity += cart.quantity, has = true) : ''
         })
-        !has ? state.cart[cart.shop.objectId].push(cart) : ''
+        !has ? state.cart[cart.shop].push(cart) : ''
       })()
     },
 

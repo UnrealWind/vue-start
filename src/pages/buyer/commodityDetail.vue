@@ -1,12 +1,12 @@
 <template>
   <tk-container class="commodity">
     <tkui-header slot="header" background="white" color="#333" center>
-      <tkui-button slot="left" class="icon" @click="back()">
+      <tkui-button slot="left" class="icon" @click="$back">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>
       商品详情
     </tkui-header>
-    <tk-image height="0" width="0" :src="commodity.tagImg"  style="height:375px;" ></tk-image>
+    <tk-image width="300" height="300" style="width: 100%" :src="commodity.tagImg" ></tk-image>
     <div class="commodity-des">
       <h3>¥{{commodity.price}}</h3>
       <div class="des">{{commodity.modelName}}</div>
@@ -44,26 +44,42 @@
 
 <script>
 export default {
-  name: 'commodity_detail',
-  layout: 'commodity_detail',
+  name: 'commodityDetail',
+  layout: '',
   data: function () {
     return {
       commodity: {},
       quantity: 1,
-      shop: {}
+    }
+  },
+  computed: {
+    commodityId () {
+      return this.$route.query.commodity
+    },
+    shop () {
+      return this.$route.query.shop
     }
   },
   mounted: function () {
-    this.commodity = this.$getFlash('flash').commodity
-    this.shop = this.$getFlash('flash').shop
+    this.init()
   },
   methods: {
-    back: function () {
-      this.$setFlash('flash', {
-        commodity: this.commodity,
-        shop: this.$getFlash('flash').shop
+    init () {
+      this.getCommodity()
+    },
+    async getCommodity () {
+      let res = await this.$tkParse.getFirst('/classes/model', {
+        params: { // url参数
+          where: {
+            user: this.shop,
+            objectId: this.commodityId
+          }
+        }
+      }).catch(err => {
+        // error code
+        throw err
       })
-      this.$back()
+      this.commodity = res
     },
     calculation: function (num) {
       if (this.quantity == 0 && Number(num) == '-1') return
@@ -81,6 +97,7 @@ export default {
         */
         this.commodity['quantity'] = this.quantity
         this.commodity['shop'] = this.shop
+        this.commodity['shopName'] = this.$route.query.shopName
         this.$store.commit('setCart', this.commodity)
         this.$tkGlobal.toast.add('已经添加进购物车！')
       })() : this.$tkGlobal.toast.add('购买数量不能为0！')
@@ -120,7 +137,7 @@ export default {
       padding: 5px 0 0 0;
     }
     .des-min {
-      font-size:4px;
+      font-size:6px;
       padding: 8px 0 0 0;
       color:#aaa;
     }
@@ -134,7 +151,7 @@ export default {
       float:left;
       width:20%;
       h4 {
-        font-size:9px;
+        font-size:11px;
         color:#aaa;
         font-weight:300;
       }
@@ -142,7 +159,7 @@ export default {
     .middle {
       float:left;
       padding:0 16px;
-      font-size:8px;
+      font-size:12px;
       color:#aaa;
       width: 80%;
       p {

@@ -38,7 +38,7 @@
       float:left;
       font-size:18px;
       span {
-        font-size:8px;
+        font-size:12px;
       }
     }
     .tkui-button {

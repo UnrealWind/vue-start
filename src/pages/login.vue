@@ -14,7 +14,7 @@
           <tkui-form ref="form_phone">
             <tkui-input v-model="phone" label=""  rulers="required" noborder placeHolder="请输入手机号"></tkui-input>
           </tkui-form>
-          <p slot="right" @click="getCode()">获取验证码</p>
+          <p slot="right" class="blue" @click="getCode()">获取验证码</p>
         </tkui-list-item>
         <tkui-list-item>
           <tk-icon slot="left" material>lock_outline</tk-icon>
@@ -39,7 +39,7 @@
 
 <script>
 export default {
-  name: 'login-page',
+  name: 'login',
   layout: '',
   data: function () {
     return {
@@ -89,13 +89,15 @@ export default {
       jud.length == 0
         ? this.targetTab == 'tabs1'
           ? this.phoneLogin().then(res => {
+            res['role'] = 'buyer'
             this.jump(res)
             this.$push('/')
           }) : this.userLogin().then(res => {
+            res['role'] = 'merchant'
             this.jump(res)
 
             // 这里业务逻辑让跳转这个页面为第一个页面
-            this.$push('/bike-list')
+            this.$push('/merchant/bikeList')
           }) : ''
     },
 
@@ -140,4 +142,11 @@ export default {
       width: 100%;
     }
   }
+  .login {
+    background-color: #fff;
+  }
+  .blue {
+    color:#0091FF;
+  }
+
 </style>

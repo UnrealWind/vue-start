@@ -26,14 +26,18 @@
 
 <script>
 export default {
-  name: 'bike_list',
-  layout: 'bike_list',
+  name: 'bikeList',
+  layout: '',
   data: function () {
     return {
-      shop: {},
       commodity: [],
       brands: [],
       status: 'loading'
+    }
+  },
+  computed:{
+    shop(){
+      return this.$store.state.user
     }
   },
   mounted: function () {
@@ -46,7 +50,6 @@ export default {
   },
   methods: {
     async init () {
-      this.shop = this.$store.state.user
 
       // fydebug这里记一下，以前没遇到过，这里使用try catch 捕获异步操作的时候，由于js单线程的特性，异步的操作会被放进
       // 异步回调队列中，这个时候是catch不到错误的，我可能对这个api的用法有问题，比较简单粗暴的把他打成同步的了
@@ -84,25 +87,19 @@ export default {
       this.commodity = res
     },
     back: function () {
-      this.$push('/merchant-index')
+      this.$push('/merchant/merchantIndex')
     },
     goBikeBrand: function (opt) {
-      this.$setFlash('flash', {
-        shop: this.userInfo,
-        brands: this.brands,
-        brand: opt
-      })
-      this.$push('/bike-brand')
-    },
-    newBike: function (opt) {
       this.$push({
-        path: '/new-bike',
-        flash: {
-          flash: {
-            shop: this.userInfo,
-            brands: this.brands
-          }
+        path: '/merchant/bikeBrand',
+        query: {
+          brandId: opt.objectId
         }
+      })
+    },
+    newBike: function () {
+      this.$push({
+        path: '/merchant/newBike',
       })
     }
   }
@@ -145,7 +142,7 @@ export default {
           .pull-right {
             float:right;
             display: block;
-            font-size:8px;
+            font-size:12px;
             font-weight:300;
           }
         }

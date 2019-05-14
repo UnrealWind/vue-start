@@ -16,8 +16,8 @@
 
 <script>
 export default {
-  name: 'help-feedback',
-  layout: 'help-feedback',
+  name: 'helpFeedback',
+  layout: '',
   data: function () {
     return {
       msg: ''

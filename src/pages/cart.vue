@@ -40,7 +40,6 @@ export default {
   layout: 'home',
   data: function () {
     return {
-      cart: [],
       totalPrice: 0,
       // waiting - 加载中  loading-  empty-
       status: 'loading'
@@ -50,8 +49,12 @@ export default {
     selfComponent,
     footerAddin
   },
+  computed:{
+    cart(){
+      return JSON.parse(JSON.stringify(this.$store.state.cart))
+    }
+  },
   mounted: function () {
-    this.cart = JSON.parse(JSON.stringify(this.$store.state.cart))
     this.calculationPrice()
     Object.keys(this.cart).length > 0 ? this.status = false : this.status = 'empty'
   },
@@ -73,9 +76,11 @@ export default {
         // error code
         throw err
       })
-      this.$push('/cart-detail')
-      this.$setFlash('flash', {
-        cart_objectId: res.data.objectId
+      this.$push({
+        path: '/buyer/cartDetail',
+        query: {
+          cart_objectId: res.data.objectId,
+        }
       })
       this.$store.commit('resetCart', {})
     },
@@ -86,8 +91,8 @@ export default {
         this.cart[i].forEach((n, i) => {
           detail.push({
             shop: {
-              shopName: n.shop.shopName,
-              objectId: n.shop.objectId
+              shopName: n.shopName,
+              objectId: n.shop
             },
             price: n.price,
             tagimg: n.tagImg,

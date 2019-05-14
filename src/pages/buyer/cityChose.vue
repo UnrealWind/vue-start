@@ -34,24 +34,27 @@
 
 <script>
 export default {
-  name: 'city-chose',
-  layout: 'city-chose',
+  name: 'cityChose',
+  layout: '',
   data: function () {
     return {
       targetCity: '加载中',
-      cityList: [],
       perPage: 20,
       targetList: {}
     }
   },
+  computed:{
+    cityList(){
+      return this.$tkRegions.getCityList()
+    }
+  },
   mounted: function () {
-    this.targetCity = this.$getFlash('targetCity')
+    this.targetCity = this.$route.query.targetCity
     this.init()
   },
   methods: {
     init () {
       let city = {}
-      this.cityList = this.$tkRegions.getCityList()
       this.cityList.forEach((n, i) => {
         !city[n.pinyin[0]] ? city[n.pinyin[0]] = [n] : city[n.pinyin[0]].push(n)
       })
@@ -66,7 +69,9 @@ export default {
       }
       return newObj// 返回排好序的新对象
     },
-    /* loadingMore: function (page, next) {
+    /*
+      无限加载的例子
+     loadingMore: function (page, next) {
       let that = this
       setTimeout(() => {
         // this.num = (page + 1) * this.perPage

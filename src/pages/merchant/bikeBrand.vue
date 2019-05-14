@@ -1,14 +1,14 @@
 <template>
   <tk-container :status="status" class="shop">
     <tkui-header slot="header" background="white" color="#333" center>
-      <tkui-button slot="left" class="icon" @click="back()">
+      <tkui-button slot="left" class="icon" @click="$back">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>
       车型列表
     </tkui-header>
 
     <tkui-list v-if="shop && shop.objectId && commodity && commodity.length>0">
-      <span @click="goNewBike(opt)" v-for="opt in commodity">
+      <span @click="newBike(opt)" v-for="opt in commodity">
         <tkui-list-item  divider >
         <tk-image slot="left"  :src="opt.tagImg"  class="avatar"></tk-image>
         <div class="content" >
@@ -37,69 +37,59 @@
 
 <script>
 export default {
-  name: 'bike-brand',
-  layout: 'bike-brand',
+  name: 'bikeBrand',
+  layout: '',
   data: function () {
     return {
-      shop: {},
       commodity: [],
-      brand: null,
       status: 'loading'
     }
   },
-  mounted: function () {
+  activated:function(){
+    //fydebug 这里是因为 $back 不会触发mounted ,可能有更好的方法吧
     this.init()
+  },
+  mounted: function () {
+   // this.init()
+  },
+  computed:{
+    shop(){
+      return this.$store.state.user
+    },
+    brandId(){
+      this.$route.query.brandId
+    }
   },
   methods: {
     init () {
       this.getModel()
     },
     async getModel () {
-      this.shop = this.$store.state.user
-      this.brand = this.$getFlash('flash').brand
+
 
       // 昂，这一页和之前商品列表是差不多的，再次验证了一下查询逻辑，之前的就先不改了
       let res = await this.$tkParse.getList('/classes/model', {
         params: { // url参数
           where: {
             user: this.shop.objectId,
-            brand: this.brand.objectId
+            brand: this.brandId
           }
         }
-      }).catch(e=>{
+      }).catch(e => {
         this.status = 'error'
         throw e
       })
       this.commodity = res
       this.commodity.length > 0 ? this.status = false : this.status = 'empty'
     },
-    back: function () {
-      this.$setFlash('flash', {
-        shop: this.userInfo,
-        brands: this.$getFlash('flash').brands
-      })
-      this.$back()
-    },
     newBike: function (opt) {
+      let query
+      opt ? query = {
+        bikeId: opt.objectId
+      } : query = null
       this.$push({
-        path: '/new-bike',
-        flash: {
-          flash: {
-            shop: this.userInfo,
-            brands: this.$getFlash('flash').brands
-          }
-        }
-      })
-    },
-    goNewBike: function (opt) {
-      this.$push({
-        path: '/new-bike',
-        flash: {
-          flash: {
-            bike: opt,
-            brands: this.$getFlash('flash').brands
-          }
-        }
+        path: '/merchant/newBike',
+        query: query
       })
     }
   }
@@ -142,7 +132,7 @@ export default {
           .pull-right {
             float:right;
             display: block;
-            font-size:8px;
+            font-size:12px;
             font-weight:300;
           }
         }

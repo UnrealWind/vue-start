@@ -1,7 +1,7 @@
 <template>
-  <tk-container class="brand">
+  <tk-container class="brand" :status="status">
     <tkui-header slot="header" center>
-      <tkui-button slot="left" class="icon" @click="back()">
+      <tkui-button slot="left" class="icon" @click="$back">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>选择品牌
     </tkui-header>
@@ -17,35 +17,29 @@
 
 <script>
 export default {
-  name: 'brand-detail',
-  layout: 'brand-detail',
+  name: 'brandDetail',
+  layout: '',
   data: function () {
     return {
-
+      mainBrand: [],
+      brands:[],
+      status: 'loading'
     }
   },
   mounted: function () {
-    this.userInfo = JSON.parse(JSON.stringify(this.$store.state.user))
+    this.init()
   },
 
   // 查了查 vue 这个computed会缓存这个属性 --- 计算属性是基于它们的响应式依赖进行缓存的
   //  https://segmentfault.com/a/1190000010408657  可以看一下这个
   computed: {
-    brands: {
-      get () {
-        return JSON.parse(JSON.stringify(this.$route.query.brands))
-      },
-      set () {
-        //
-      }
+    userInfo(){
+      return this.$store.state.user
     }
   },
   methods: {
-    back: function () {
-      this.$back()
-      this.$setFlash('flash', {
-        brands: this.brands
-      })
+    init(){
+      this.getBrand()
     },
     chose: function (opt) {
       opt['active'] ? (opt['active'] = false, this.userInfo.mainBrand.splice(this.userInfo.mainBrand.indexOf(opt.objectId), 1))
@@ -61,6 +55,32 @@ export default {
         throw err
       })
       this.$store.commit('setUser', this.userInfo)
+    },
+    resetBrands: function () {
+      let that = this
+      let brand = JSON.parse(JSON.stringify(this.mainBrand))
+      !that.userInfo.mainBrand ? that.userInfo.mainBrand = [] : ''
+      brand.forEach((n, i) => {
+        !n['active'] ? n['active'] = false : ''
+        that.userInfo.mainBrand.forEach((ni, ii) => {
+          ni == n.objectId ? n['active'] = true : ''
+        })
+      })
+      this.brands = brand
+    },
+    async getBrand () {
+      let res = await this.$tkParse.get('/classes/brand', {
+        params: { // url参数
+
+        }
+      }).catch(e => {
+        // err code
+        this.status = 'error'
+        throw e
+      })
+      this.mainBrand = res.data.results
+      this.mainBrand.length > 0 ? this.status = false : this.status = 'empty'
+      this.resetBrands()
     }
   }
 }

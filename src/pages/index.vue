@@ -1,26 +1,25 @@
 <template>
-  <tk-container  class="index">
+  <tk-container  class="index"  infiniteScroll @loadingMore="loadingMore">
       <tkui-header slot="header" >
         <tkui-button  @click="goCityChose()" slot="left" class="icon">
           <tk-icon>Positioning</tk-icon>
         </tkui-button>
         <span slot="left" class="city">{{city}}</span>
-        <tkui-search-input v-model="search" place-holder="输入搜索内容" class="fill"></tkui-search-input>
+        <tkui-search-input v-model="search" place-holder="输入搜索内容" ></tkui-search-input>
         <div slot="right">
           <tkui-button @click="scan" class="icon">
             <tk-icon>Scan</tk-icon>
           </tkui-button>
-        </div>z
+        </div>
       </tkui-header>
-
       <tk-slider loop autoPlay>
         <div class="slider-item" v-for="image,index in imgs" :key="index">
           <tk-image style="width: 100%;" :src="image.image" width="1200" height="600"></tk-image>
         </div>
       </tk-slider>
-      <div class="center"><tk-image height="50" :src="speImg"></tk-image></div>
+      <div class="center"><tk-image height="40" :src="speImg"></tk-image></div>
       <tkui-list>
-        <tkui-list-item divider v-for="opt in shop" v-if="opt && opt.shopName.indexOf(search)>-1">
+        <tkui-list-item divider v-for="opt in targetShop" v-if="opt && opt.shopName.indexOf(search)>-1">
           <tk-image slot="left"  :src="opt.storePhoto" width="1200" height="600" class="avatar"></tk-image>
           <div class="content" @click="goShopPage(opt)">
             <div class="title">{{opt.shopName}}
@@ -54,7 +53,9 @@ export default {
       city: '加载中',
       position: {},
       location: [],
-      search: ''
+      search: '',
+      perPage: 5,
+      targetShop: []
     }
   },
   mounted: function () {
@@ -63,7 +64,7 @@ export default {
     })
   },
   computed: {
-    //这个页面感觉不是很有必要用这个
+
   },
   methods: {
     init: function () {
@@ -75,6 +76,18 @@ export default {
         // code
         throw e
       }
+    },
+
+    // 无限加载的例子
+    loadingMore: function (page, next) {
+      setTimeout(() => {
+        this.targetShop = this.targetShop.concat(this.shop.slice((page) * this.perPage, (page + 1) * this.perPage))
+        if (page >= 5) {
+          next('complete')
+        } else {
+          next('+1')
+        }
+      }, 1000)
     },
     async getSlider () {
       let res = await this.$tkParse.get('/classes/slider', {})
@@ -106,18 +119,23 @@ export default {
       })
     },
     goShopPage: function (opt) {
-      this.$setFlash('flash', {
-        shop: opt
+      this.$push({
+        path: '/buyer/shopDetail',
+        query: {
+          shop: opt.user.objectId,
+          shopName: opt.shopName
+        }
       })
-      this.$push('/shop-detail')
     },
     checkResult (result) {
       // 对result进行判断，当返回true时,扫码成功，扫描器关闭
       this.$refs.scaner.close()
       result ? (() => {
-        this.$push('/cart-detail')
-        this.$setFlash('flash', {
-          cart_objectId: result
+        this.$push({
+          path: '/buyer/cartDetail',
+          query: {
+            cart_objectId: result
+          }
         })
       })() : this.$refs.toast.add('扫码失败！请重试')
     },
@@ -131,7 +149,7 @@ export default {
         })
     },
     async getLocal () {
-      // 不知道为啥定唐县了,这个api用法应该是这样的
+      // 定位是正确的了
       let position = await this.$tkGeolocation.getCurrentPosition({
         parse: true
       })
@@ -139,17 +157,6 @@ export default {
       this.location = [position.latitude, position.longitude]
     },
     getPosition: function (posi1) {
-      /* function distance (lat1, lng1, lat2, lng2) {
-        let radLat1 = lat1 * Math.PI / 180.0
-        let radLat2 = lat2 * Math.PI / 180.0
-        let a = radLat1 - radLat2
-        let b = lng1 * Math.PI / 180.0 - lng2 * Math.PI / 180.0
-        let s = 2 * Math.asin(Math.sqrt(Math.pow(Math.sin(a / 2), 2) +
-          Math.cos(radLat1) * Math.cos(radLat2) * Math.pow(Math.sin(b / 2), 2)))
-        s = s * 6378.137// EARTH_RADIUS;
-        s = Math.round(s * 100) / 100
-        return s
-      }; */
       return this.$tkHelper.distance({
         latitude: posi1[0],
         longitude: posi1[1]
@@ -160,8 +167,8 @@ export default {
     },
     goCityChose () {
       this.$push({
-        path: 'city-chose',
-        flash: {
+        path: '/buyer/cityChose',
+        query: {
           targetCity: this.city
         }
       })
@@ -196,12 +203,12 @@ export default {
           .pull-right {
             float:right;
             display: block;
-            font-size:8px;
+            font-size:12px;
             font-weight:300;
           }
         }
         .des {
-          font-size:11px;
+          font-size:12px;
           color:#aaa;
         }
         .btn-box {
@@ -212,7 +219,7 @@ export default {
             height: auto;
             background-color: rgba(1, 144, 255, 0.3) !important; /*原生上有这个important无法通过权重去除*/
             border-radius: 8px;
-            font-size:8px;
+            font-size:12px;
             margin-left:0;
             color: rgba(1, 144, 255, 1) !important;
           }
@@ -231,5 +238,7 @@ export default {
   .center {
     text-align:center;
   }
-
+  .tkui-search-input {
+    margin:0 0 0 15px;
+  }
 </style>

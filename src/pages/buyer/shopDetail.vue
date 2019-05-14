@@ -1,15 +1,14 @@
 <template>
-  <tk-container class="shop">
+  <tk-container class="shop" :status="status">
     <tkui-header slot="header" background="white" color="#333" center>
       <tkui-button slot="left" class="icon" @click="$back()">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>
       {{shop.shopName}}
     </tkui-header>
-
-    <tkui-list v-if="shop.user && shop.user.objectId &&commodity && commodity.length>0">
+    <tkui-list>
       <tkui-list-item divider v-for="opt in commodity" >
-        <tk-image slot="left"  :src="opt.tagImg"  class="avatar"></tk-image>
+        <tk-image  slot="left" alt="标签照" :src="opt.tagImg"  class="avatar"></tk-image>
         <div class="content"  @click="goCommodityPage(opt)">
           <div class="title">{{opt.modelName}}</div>
           <div class="des">{{opt.configInfo}}</div>
@@ -17,31 +16,27 @@
         </div>
       </tkui-list-item>
     </tkui-list>
-
-    <tkui-list v-else>
-      <tkui-list-item divider >
-        <div class="content">
-          <div class="title">没有查询到数据！请重试！</div>
-        </div>
-      </tkui-list-item>
-    </tkui-list>
-
   </tk-container>
 </template>
 
 <script>
 export default {
-  name: 'shop_detail',
-  layout: 'shop_detail',
+  name: 'shopDetail',
+  layout: '',
   data: function () {
     return {
-      shop: {},
-      commodity: []
+      commodity: [],
+      // waiting - 加载中  loading-  empty-
+      status: 'loading'
     }
   },
   mounted: function () {
-    this.shop = this.$getFlash('flash').shop
     this.init()
+  },
+  computed: {
+    shop () {
+      return this.$route.query.shop
+    }
   },
   methods: {
     init () {
@@ -56,21 +51,26 @@ export default {
       let res = await this.$tkParse.get('/classes/model', {
         params: { // url参数
           where: {
-            user: this.shop.user.objectId
+            user: this.shop
           }
         }
-      }).catch(err => {
+      }).catch(e => {
         // error code
-        throw err
+        this.status = 'empty'
+        throw e
       })
+      res.data.results.length > 0 ? this.status = false : this.status = 'empty'
       this.commodity = res.data.results
     },
     goCommodityPage: function (opt) {
-      this.$setFlash('flash', {
-        commodity: opt,
-        shop: this.shop
+      this.$push({
+        path: '/buyer/commodityDetail',
+        query: {
+          commodity: opt.objectId,
+          shop: this.shop,
+          shopName: this.$route.query.shopName
+        }
       })
-      this.$push('/commodity-detail')
     }
   }
 }
@@ -102,7 +102,7 @@ export default {
           .pull-right {
             float:right;
             display: block;
-            font-size:8px;
+            font-size:12px;
             font-weight:300;
           }
         }

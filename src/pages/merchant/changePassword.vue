@@ -26,8 +26,8 @@
 
 <script>
 export default {
-  name: 'change-password',
-  layout: 'change-password',
+  name: 'changePassword',
+  layout: '',
   data: function () {
     return {
       usedPassword: '',

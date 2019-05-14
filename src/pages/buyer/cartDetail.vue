@@ -36,13 +36,13 @@
 
 <script>
 export default {
-  name: 'cart-detail',
-  layout: 'cart-detail',
+  name: 'cartDetail',
+  layout: '',
   data: function () {
     return {
       cart: {},
       paidStatus: '',
-      cart_objectId: this.$getFlash('flash').cart_objectId,
+      cart_objectId: this.$route.query.cart_objectId,
       order:{},
     }
   },
@@ -62,7 +62,7 @@ export default {
       let res = await this.$tkParse.getFirst('/classes/order', {
         params: { // url参数
           where: {
-            objectId: this.$getFlash('flash').cart_objectId
+            objectId: this.cart_objectId
           }
         }
       }).catch(err => {
@@ -125,7 +125,7 @@ export default {
           .pull-right {
             float:right;
             display: block;
-            font-size:8px;
+            font-size:12px;
             font-weight:300;
           }
         }

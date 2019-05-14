@@ -40,8 +40,8 @@
 
 <script>
 export default {
-  name: 'persion-info',
-  layout: 'persion-info',
+  name: 'persionInfo',
+  layout: '',
   data: function () {
     return {
       userInfo: {},
@@ -64,7 +64,8 @@ export default {
   },
   methods: {
     logout: function () {
-      this.$replace('/login')
+      this.$replace('/login');
+      this.$store.commit('setSessionToken', null)
     },
     pick () {
       this.$tkFile.pick({
@@ -72,8 +73,7 @@ export default {
         from: this.from
       }).then(file => {
         this.change()
-      })
-        .catch(e => {
+      }).catch(e => {
           throw e
         })
     },

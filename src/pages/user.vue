@@ -46,26 +46,30 @@ export default {
   data: function () {
     return {
       speImg: 'http://moke-store.oss-cn-beijing.aliyuncs.com/7ee4acc4-75c8-4812-8d3b-b970d54de161.png',
-      userInfo: {}
+    }
+  },
+  computed:{
+    userInfo(){
+      return this.$store.state.user
     }
   },
   mounted: function () {
-    this.userInfo = this.$store.state.user
+    //
   },
   methods: {
     goOrderList: function (type) {
       this.$push({
-        path: '/order-list',
-        flash: {
+        path: '/buyer/orderList',
+        query: {
           orderType: type
         }
       })
     },
     goPersional: function () {
-      this.$push('/persion-info')
+      this.$push('/buyer/persionInfo')
     },
     goHelpFeedback: function () {
-      this.$push('/help-feedback')
+      this.$push('/buyer/helpFeedback')
     }
   }
 }

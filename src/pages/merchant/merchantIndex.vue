@@ -1,6 +1,6 @@
 <template>
   <tk-container>
-    <tkui-header slot="header" center>
+    <tkui-header slot="header" center :status="status">
       <tkui-button slot="left" class="icon" @click="$back">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>商家主页
@@ -27,12 +27,6 @@
     </tkui-list>
 
     <tkui-list>
-      <!--<span @click="gobikeList()">
-        <tkui-list-item>
-          库存品牌
-          <tk-icon color="#666" slot="right">return1</tk-icon>
-        </tkui-list-item>
-      </span>-->
       <span @click="goShopAddress()">
         <tkui-list-item>
           我的店铺
@@ -47,16 +41,20 @@
 
 <script>
 export default {
-  name: 'merchant-index',
-  layout: 'merchant-index',
+  name: 'merchantIndex',
+  layout: '',
   data: function () {
     return {
-      userInfo: {},
-      mainBrand: []
+      mainBrand: [],
+      status: 'loading'
+    }
+  },
+  computed:{
+    userInfo(){
+      return this.$store.state.user
     }
   },
   mounted: function () {
-    this.userInfo = this.$store.state.user
     this.init()
   },
   methods: {
@@ -68,65 +66,41 @@ export default {
         params: { // url参数
 
         }
-      }).catch(err => {
+      }).catch(e => {
         // err code
-        throw err
+        this.status = 'error'
+        throw e
       })
       this.mainBrand = res.data.results
+      this.mainBrand.length > 0 ? this.status = false : this.status = 'empty'
     },
     logout: function () {
-      this.$replace('/login')
+      this.$replace('/login');
+      this.$store.commit('setSessionToken', null)
     },
-    goBrandDetail: function (n, i) {
-      let brand = this.getBrands()
+    goBrandDetail: function () {
 
       //这里测了测query，区别应该是flash会被销毁
       this.$push({
-        path: '/brand-detail',
-        query: {
-          brands:brand,
-        }
+        path: '/merchant/brandDetail',
       })
     },
     goChangePassword: function () {
       this.$push({
-        path: '/change-password',
-        flash: {
-
-        }
+        path: '/merchant/changePassword',
       })
     },
     goShopAddress: function () {
       this.$push({
-        path: '/shop-address',
-        flash: {
-
-        }
+        path: '/merchant/shopAddress',
       })
     },
     gobikeList: function () {
       this.$push({
-        path: '/bike-list',
-        flash: {
-          flash: {
-            shop: this.userInfo,
-            brands: this.mainBrand
-          }
-        }
+        path: '/merchant/bikeList',
       })
     },
-    getBrands: function () {
-      let that = this
-      let brand = JSON.parse(JSON.stringify(this.mainBrand))
-      !that.userInfo.mainBrand ? that.userInfo.mainBrand = [] : ''
-      brand.forEach((n, i) => {
-        !n['active'] ? n['active'] = false : ''
-        that.userInfo.mainBrand.forEach((ni, ii) => {
-          ni == n.objectId ? n['active'] = true : ''
-        })
-      })
-      return brand
-    }
+
   }
 }
 </script>

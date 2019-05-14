@@ -1,5 +1,5 @@
 <template>
-  <tk-container>
+  <tk-container class="bg-white">
     <tkui-header slot="header" center>
       <tkui-button slot="left" class="icon" @click="$back">
         <tk-icon material>keyboard_arrow_left</tk-icon>
@@ -7,7 +7,7 @@
     </tkui-header>
     <tkui-tab v-if="orderType" :value="orderType"  average style="height: auto;">
       <tkui-tab-item label="全部订单">
-        <span v-if="orders.length>0" @click="goCartDetail(order)"  v-for="order in orders">
+        <span  @click="goCartDetail(order)"  v-for="order in orders">
           <tkui-list >
             <div class="list-header" >
               <h2><span>{{order.titleName}}</span>
@@ -23,7 +23,7 @@
             </tkui-list-item>
           </tkui-list>
         </span>
-        <span v-else>
+        <span v-if="orders.length==0">
           <tkui-list >
             <div class="list-header" >
               <h2><span>暂无数据！</span></h2>
@@ -48,7 +48,7 @@
             </tkui-list-item>
           </tkui-list>
         </span>
-        <span v-if="orderUnpaid.length>0">
+        <span v-if="orderUnpaid.length==0">
           <tkui-list >
             <div class="list-header" >
               <h2><span>暂无数据！</span></h2>
@@ -112,8 +112,8 @@
 
 <script>
 export default {
-  name: 'order-list',
-  layout: 'order-list',
+  name: 'orderList',
+  layout: '',
   data: function () {
     return {
       orders: [],
@@ -130,7 +130,7 @@ export default {
   },
   methods: {
     init: function () {
-      let orderType = this.$getFlash('orderType')
+      let orderType = this.$route.query.orderType
 
       // 标一下全局状态
       switch (orderType) {
@@ -153,9 +153,9 @@ export default {
             user: this.userInfo.objectId
           }
         }
-      }).catch(err => {
+      }).catch(e => {
         // error code
-        throw err
+        throw e
       })
       this.orders = res.data.results
 
@@ -183,11 +183,9 @@ export default {
     },
     goCartDetail: function (opt) {
       this.$push({
-        path: '/cart-detail',
-        flash: {
-          flash: {
-            cart_objectId: opt.objectId
-          }
+        path: '/buyer/cartDetail',
+        query: {
+          cart_objectId: opt.objectId
         }
       })
     }
@@ -240,7 +238,7 @@ export default {
           .pull-right {
             float:right;
             display: block;
-            font-size:8px;
+            font-size:12px;
             font-weight:300;
           }
         }
@@ -290,6 +288,10 @@ export default {
         font-size:14px;
       }
     }
+  }
+
+  .bg-white {
+    background-color: #fff;
   }
 
 </style>

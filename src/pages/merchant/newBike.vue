@@ -1,7 +1,7 @@
 <template>
   <tk-container class="shop">
     <tkui-header slot="header" background="white" color="#333" center>
-      <tkui-button slot="left" class="icon" @click="back()">
+      <tkui-button slot="left" class="icon" @click="$back">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>
       添加车型
@@ -21,7 +21,7 @@
           <div class="tkui-input-body">
             <tk-flex style="flex-direction: column;" class="img-wrap" middle center @click.native="pick">
               <div class="md-subheading">选择一个文件</div>
-              <tk-image  style="width: 60px;height:60px;" width="600" height="1200" class=" avatar" :src="file.url"></tk-image>
+              <tk-image v-if="file && file.url" style="width: 60px;height:60px;" width="600" height="1200" class=" avatar" :src="file.url"></tk-image>
             </tk-flex>
           </div>
         </div>
@@ -36,8 +36,8 @@
 
 <script>
 export default {
-  name: 'new_bike',
-  layout: 'new_bike',
+  name: 'newBike',
+  layout: '',
   data: function () {
     return {
       bikeName: '',
@@ -45,17 +45,20 @@ export default {
       from: 'file',
       file: {},
       mainBrand: [],
-      userInfo: {},
       price: 0,
       des: '',
       brand: '',
       brands: null,
-      btnType: true
+      btnType: true,
+      bike: {}
     }
   },
   computed: {
     isImage () {
       return this.file && /image/.test(this.file.file.type)
+    },
+    userInfo(){
+      return this.$store.state.user
     }
   },
   mounted: function () {
@@ -63,31 +66,39 @@ export default {
   },
   methods: {
     init () {
-      this.mainBrand = this.$getFlash('flash').brands
-      this.userInfo = this.$store.state.user
+      this.getBrand()
+      this.$route.query.bikeId ? this.getBike() : ''
+    },
+    async getBike () {
+      let res = await this.$tkParse.getFirst('/classes/model', {
+        params: {
+          where: {
+            objectId: this.$route.query.bikeId
+          }
+        }
+      }).catch(e => {
+        throw e
+      })
+      this.bike = res
+      this.bikeName = res.modelName
+      this.brand = res.brand
+      this.price = res.price
+      this.des = res.configInfo
+      this.file['url'] = res.tagImg
+    },
+    async getBrand () {
+      let res = await this.$tkParse.getList('/classes/brand', {
+        params: {}
+      }).catch(e => {
+        throw e
+      })
       this.brands = {}
-      this.mainBrand.forEach((n, i) => {
+      res.forEach((n, i) => {
         this.userInfo.mainBrand.forEach((ni, ii) => {
           ni == n.objectId ? this.brands[n.objectId] = n.name : ''
         })
       })
-      this.$getFlash('flash').bike ? (() => {
-        let bike = this.$getFlash('flash').bike
-        this.bikeName = bike.modelName
-        this.brand = bike.brand
-        this.price = bike.price
-        this.des = bike.configInfo
-        this.file['url'] = bike.tagImg
-      })() : ''
-    },
-    back: function () {
-      this.$back()
-      this.$setFlash('flash', {
-        brands: this.$getFlash('flash').brands,
-        brand: {
-          objectId: this.brand
-        }
-      })
+      this.mainBrand = res
     },
     pick () {
       this.$tkFile.pick({
@@ -117,10 +128,10 @@ export default {
         throw e
       })
       this.$tkGlobal.toast.add('新增车型成功！')
-      this.back()
+      this.$back()
     },
     async putModel () {
-      let res = await this.$tkParse.put('/classes/model/' + this.$getFlash('flash').bike.objectId, {
+      let res = await this.$tkParse.put('/classes/model/' + this.$route.query.bikeId, {
         user: this.userInfo.objectId,
         price: Number(this.price),
         tagImg: this.file.url || null,
@@ -132,10 +143,10 @@ export default {
         throw e
       })
       this.$tkGlobal.toast.add('修改车型成功！')
-      this.back()
+      this.$back()
     },
     commit () {
-      !this.$getFlash('flash').bike ? this.postModel() : this.putModel()
+      !this.$route.query.bikeId ? this.postModel() : this.putModel()
     }
   }
 }

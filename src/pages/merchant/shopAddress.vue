@@ -1,6 +1,6 @@
 <template>
   <tk-container>
-    <tkui-header center>
+    <tkui-header  slot="header" center>
       <tkui-button slot="left" class="icon" @click="$back">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>
@@ -36,15 +36,14 @@
       </div>
     </tkui-list>
 
-    <tk-toast ref="toast"></tk-toast>
     <tkui-button @click="save()" primary raised big block border>保存</tkui-button>
   </tk-container>
 </template>
 
 <script>
 export default {
-  name: 'shop-address',
-  layout: 'shop-address',
+  name: 'shopAddress',
+  layout: '',
   data: function () {
     return {
       type: 'image',
@@ -68,8 +67,8 @@ export default {
     }
   },
   methods: {
-    init () {
-      this.getShop()
+    async init () {
+      await this.getShop()
       this.initMap()
     },
     async getShop () {
@@ -122,7 +121,7 @@ export default {
           position: [this.location.longitude, this.location.latitude]
         }]
         markers.forEach(function (marker) {
-          AMap.Marker({
+          new AMap.Marker({
             map: map,
             icon: marker.icon,
             position: [marker.position[0], marker.position[1]],
@@ -134,7 +133,7 @@ export default {
 
       // 为地图注册click事件获取鼠标点击出的经纬度坐标
       map.on('click', function (e) {
-        //! e.lnglat?that.$refs.toast.add('请选择更详细的的地址！'):that.$refs.toast.add('定位成功');
+        /*! e.lnglat?that.$refs.toast.add('请选择更详细的的地址！'):that.$refs.toast.add('定位成功');*/
         that.location = {
           __type: 'GeoPoint',
           latitude: e.lnglat.lat,
@@ -146,7 +145,7 @@ export default {
         }]
         map.clearMap()
         markers.forEach(function (marker) {
-          AMap.Marker({
+          new AMap.Marker({
             map: map,
             icon: marker.icon,
             position: [marker.position[0], marker.position[1]],
