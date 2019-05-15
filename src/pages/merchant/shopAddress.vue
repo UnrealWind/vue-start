@@ -133,7 +133,7 @@ export default {
 
       // 为地图注册click事件获取鼠标点击出的经纬度坐标
       map.on('click', function (e) {
-        /*! e.lnglat?that.$refs.toast.add('请选择更详细的的地址！'):that.$refs.toast.add('定位成功');*/
+        /*! e.lnglat?that.$refs.toast.add('请选择更详细的的地址！'):that.$refs.toast.add('定位成功'); */
         that.location = {
           __type: 'GeoPoint',
           latitude: e.lnglat.lat,

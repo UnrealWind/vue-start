@@ -49,8 +49,8 @@ export default {
     selfComponent,
     footerAddin
   },
-  computed:{
-    cart(){
+  computed: {
+    cart () {
       return JSON.parse(JSON.stringify(this.$store.state.cart))
     }
   },
@@ -79,7 +79,7 @@ export default {
       this.$push({
         path: '/buyer/cartDetail',
         query: {
-          cart_objectId: res.data.objectId,
+          cart_objectId: res.data.objectId
         }
       })
       this.$store.commit('resetCart', {})

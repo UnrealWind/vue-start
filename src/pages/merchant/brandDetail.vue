@@ -22,7 +22,7 @@ export default {
   data: function () {
     return {
       mainBrand: [],
-      brands:[],
+      brands: [],
       status: 'loading'
     }
   },
@@ -33,12 +33,12 @@ export default {
   // 查了查 vue 这个computed会缓存这个属性 --- 计算属性是基于它们的响应式依赖进行缓存的
   //  https://segmentfault.com/a/1190000010408657  可以看一下这个
   computed: {
-    userInfo(){
+    userInfo () {
       return this.$store.state.user
     }
   },
   methods: {
-    init(){
+    init () {
       this.getBrand()
     },
     chose: function (opt) {

@@ -45,11 +45,11 @@ export default {
   layout: 'home',
   data: function () {
     return {
-      speImg: 'http://moke-store.oss-cn-beijing.aliyuncs.com/7ee4acc4-75c8-4812-8d3b-b970d54de161.png',
+      speImg: 'http://moke-store.oss-cn-beijing.aliyuncs.com/7ee4acc4-75c8-4812-8d3b-b970d54de161.png'
     }
   },
-  computed:{
-    userInfo(){
+  computed: {
+    userInfo () {
       return this.$store.state.user
     }
   },

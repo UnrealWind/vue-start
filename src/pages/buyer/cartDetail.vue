@@ -43,7 +43,7 @@ export default {
       cart: {},
       paidStatus: '',
       cart_objectId: this.$route.query.cart_objectId,
-      order:{},
+      order: {}
     }
   },
   computed: {

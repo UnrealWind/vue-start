@@ -49,7 +49,7 @@ export default {
   data: function () {
     return {
       commodity: {},
-      quantity: 1,
+      quantity: 1
     }
   },
   computed: {

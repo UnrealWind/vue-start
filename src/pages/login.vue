@@ -89,11 +89,11 @@ export default {
       jud.length == 0
         ? this.targetTab == 'tabs1'
           ? this.phoneLogin().then(res => {
-            res['role'] = 'buyer'
+            res.data['role'] = 'buyer'
             this.jump(res)
             this.$push('/')
           }) : this.userLogin().then(res => {
-            res['role'] = 'merchant'
+            res.data['role'] = 'merchant'
             this.jump(res)
 
             // 这里业务逻辑让跳转这个页面为第一个页面

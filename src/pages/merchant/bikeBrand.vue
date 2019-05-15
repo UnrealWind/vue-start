@@ -45,18 +45,18 @@ export default {
       status: 'loading'
     }
   },
-  activated:function(){
-    //fydebug 这里是因为 $back 不会触发mounted ,可能有更好的方法吧
+  activated: function () {
+    // fydebug 这里是因为 $back 不会触发mounted ,可能有更好的方法吧
     this.init()
   },
   mounted: function () {
-   // this.init()
+    // this.init()
   },
-  computed:{
-    shop(){
+  computed: {
+    shop () {
       return this.$store.state.user
     },
-    brandId(){
+    brandId () {
       this.$route.query.brandId
     }
   },
@@ -65,9 +65,7 @@ export default {
       this.getModel()
     },
     async getModel () {
-
-
-      // 昂，这一页和之前商品列表是差不多的，再次验证了一下查询逻辑，之前的就先不改了
+      // 这一页和之前商品列表是差不多的，再次验证了一下查询逻辑
       let res = await this.$tkParse.getList('/classes/model', {
         params: { // url参数
           where: {

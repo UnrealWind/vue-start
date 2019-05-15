@@ -35,8 +35,8 @@ export default {
       status: 'loading'
     }
   },
-  computed:{
-    shop(){
+  computed: {
+    shop () {
       return this.$store.state.user
     }
   },
@@ -44,13 +44,11 @@ export default {
     this.init()
   },
   beforeRouteLeave (to, from, next) {
-
     // 使用了这个让用户不用误操作后退键回到login页面
     to.path == '/login' ? next(false) : next()
   },
   methods: {
     async init () {
-
       // fydebug这里记一下，以前没遇到过，这里使用try catch 捕获异步操作的时候，由于js单线程的特性，异步的操作会被放进
       // 异步回调队列中，这个时候是catch不到错误的，我可能对这个api的用法有问题，比较简单粗暴的把他打成同步的了
       // 看了一下可以使用 batch 进行批量处理，我会在别的页面进行 batch 的使用处理这种多个请求同时进行的情况
@@ -99,7 +97,7 @@ export default {
     },
     newBike: function () {
       this.$push({
-        path: '/merchant/newBike',
+        path: '/merchant/newBike'
       })
     }
   }

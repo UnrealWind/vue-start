@@ -49,8 +49,8 @@ export default {
       status: 'loading'
     }
   },
-  computed:{
-    userInfo(){
+  computed: {
+    userInfo () {
       return this.$store.state.user
     }
   },
@@ -75,31 +75,30 @@ export default {
       this.mainBrand.length > 0 ? this.status = false : this.status = 'empty'
     },
     logout: function () {
-      this.$replace('/login');
+      this.$replace('/login')
       this.$store.commit('setSessionToken', null)
     },
     goBrandDetail: function () {
-
-      //这里测了测query，区别应该是flash会被销毁
+      // 这里测了测query，区别应该是flash会被销毁
       this.$push({
-        path: '/merchant/brandDetail',
+        path: '/merchant/brandDetail'
       })
     },
     goChangePassword: function () {
       this.$push({
-        path: '/merchant/changePassword',
+        path: '/merchant/changePassword'
       })
     },
     goShopAddress: function () {
       this.$push({
-        path: '/merchant/shopAddress',
+        path: '/merchant/shopAddress'
       })
     },
     gobikeList: function () {
       this.$push({
-        path: '/merchant/bikeList',
+        path: '/merchant/bikeList'
       })
-    },
+    }
 
   }
 }

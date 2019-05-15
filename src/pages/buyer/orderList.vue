@@ -5,9 +5,10 @@
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>订单
     </tkui-header>
-    <tkui-tab v-if="orderType" :value="orderType"  average style="height: auto;">
-      <tkui-tab-item label="全部订单">
-        <span  @click="goCartDetail(order)"  v-for="order in orders">
+
+    <tkui-tab around ref="tab" v-model="orderType">
+      <tkui-tab-item :label="tab.label" :name="tab.name" v-for="(tab,index) in tabs" :key="index">
+        <span  @click="goCartDetail(order)"  v-for="order in tab.orders">
           <tkui-list >
             <div class="list-header" >
               <h2><span>{{order.titleName}}</span>
@@ -23,82 +24,7 @@
             </tkui-list-item>
           </tkui-list>
         </span>
-        <span v-if="orders.length==0">
-          <tkui-list >
-            <div class="list-header" >
-              <h2><span>暂无数据！</span></h2>
-            </div>
-          </tkui-list>
-        </span>
-      </tkui-tab-item>
-      <tkui-tab-item label="待付款">
-        <span @click="goCartDetail(order)"  v-for="order in orderUnpaid">
-          <tkui-list>
-            <div class="list-header" >
-              <h2><span>{{order.titleName}}</span>
-                <span class="pull-right" v-bind:class="{ gray: order.status !== 'complete'}">{{order.paidStatus}}</span>
-              </h2>
-            </div>
-            <tkui-list-item disableHover divider >
-              <img slot="left" v-if="shop &&shop.tagimg" v-for="shop in order.detail" v-bind:src="shop.tagimg" class="avatar" />
-              <div class="content"  >
-                <div class="price gray" >共{{order.detail.length}}件商品，实付款：¥{{order.price}}
-                </div>
-              </div>
-            </tkui-list-item>
-          </tkui-list>
-        </span>
-        <span v-if="orderUnpaid.length==0">
-          <tkui-list >
-            <div class="list-header" >
-              <h2><span>暂无数据！</span></h2>
-            </div>
-          </tkui-list>
-        </span>
-      </tkui-tab-item>
-      <tkui-tab-item label="已完成">
-        <span  @click="goCartDetail(order)"  v-for="order in orderComplete">
-          <tkui-list>
-            <div class="list-header" >
-              <h2><span>{{order.titleName}}</span>
-                <span class="pull-right" v-bind:class="{ gray: order.status !== 'complete'}">{{order.paidStatus}}</span>
-              </h2>
-            </div>
-            <tkui-list-item disableHover divider >
-              <img slot="left" v-if="shop &&shop.tagimg"  v-for="shop in order.detail" v-bind:src="shop.tagimg" class="avatar" />
-              <div class="content"  >
-                <div class="price gray" >共{{order.detail.length}}件商品，实付款：¥{{order.price}}
-                </div>
-              </div>
-            </tkui-list-item>
-          </tkui-list>
-        </span>
-        <span v-if="orderComplete.length==0">
-          <tkui-list >
-            <div class="list-header" >
-              <h2><span>暂无数据！</span></h2>
-            </div>
-          </tkui-list>
-        </span>
-      </tkui-tab-item>
-      <tkui-tab-item label="已取消">
-        <span @click="goCartDetail(order)"  v-for="order in orderClose">
-          <tkui-list>
-            <div class="list-header" >
-              <h2><span>{{order.titleName}}</span>
-                <span class="pull-right" v-bind:class="{ gray: order.status !== 'complete'}">{{order.paidStatus}}</span>
-              </h2>
-            </div>
-            <tkui-list-item disableHover divider >
-              <img slot="left" v-if="shop && shop.tagimg" v-for="shop in order.detail" v-bind:src="shop.tagimg" class="avatar" />
-              <div class="content"  >
-                <div class="price gray" >共{{order.detail.length}}件商品，实付款：¥{{order.price}}
-                </div>
-              </div>
-            </tkui-list-item>
-          </tkui-list>
-        </span>
-        <span  v-if="orderClose.length==0">
+        <span v-if="tab.orders.length==0">
           <tkui-list >
             <div class="list-header" >
               <h2><span>暂无数据！</span></h2>
@@ -128,12 +54,31 @@ export default {
   mounted: function () {
     this.init()
   },
+  computed: {
+    tabs () {
+      return [{
+        name: 'all',
+        label: '全部订单',
+        orders: this.orders
+      }, {
+        name: 'unpaid',
+        label: '待付款',
+        orders: this.orderUnpaid
+      }, {
+        name: 'compelete',
+        label: '已完成',
+        orders: this.orderComplete
+      }, {
+        name: 'close',
+        label: '已关闭',
+        orders: this.orderClose
+      }]
+    }
+  },
   methods: {
     init: function () {
-      let orderType = this.$route.query.orderType
-
       // 标一下全局状态
-      switch (orderType) {
+      switch (this.$route.query.orderType) {
         case 'all':this.orderType = '全部订单'; break
         case 'unpaid':this.orderType = '未付款'; break
         case 'complete':this.orderType = '已完成'; break

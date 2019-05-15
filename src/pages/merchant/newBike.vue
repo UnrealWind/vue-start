@@ -57,7 +57,7 @@ export default {
     isImage () {
       return this.file && /image/.test(this.file.file.type)
     },
-    userInfo(){
+    userInfo () {
       return this.$store.state.user
     }
   },

@@ -43,8 +43,8 @@ export default {
       targetList: {}
     }
   },
-  computed:{
-    cityList(){
+  computed: {
+    cityList () {
       return this.$tkRegions.getCityList()
     }
   },

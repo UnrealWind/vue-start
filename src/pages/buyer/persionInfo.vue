@@ -64,7 +64,7 @@ export default {
   },
   methods: {
     logout: function () {
-      this.$replace('/login');
+      this.$replace('/login')
       this.$store.commit('setSessionToken', null)
     },
     pick () {
@@ -74,8 +74,8 @@ export default {
       }).then(file => {
         this.change()
       }).catch(e => {
-          throw e
-        })
+        throw e
+      })
     },
     async change () {
       let res1 = await this.$tkParse.post('/files', file.buffer)
