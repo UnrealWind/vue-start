@@ -1,5 +1,5 @@
 <template>
-  <tk-container class="bg-white">
+  <tk-container class="bg-white" :status="status">
     <tkui-header slot="header" center>
       <tkui-button slot="left" class="icon" @click="$back">
         <tk-icon material>keyboard_arrow_left</tk-icon>
@@ -40,18 +40,17 @@
 export default {
   name: 'orderList',
   layout: '',
-  data: function () {
+  data () {
     return {
       orders: [],
       paidStatus: '',
-      userInfo: {},
-      orderType: '',
       orderUnpaid: [],
       orderComplete: [],
-      orderClose: []
+      orderClose: [],
+      status: 'loading'
     }
   },
-  mounted: function () {
+  mounted () {
     this.init()
   },
   computed: {
@@ -73,42 +72,43 @@ export default {
         label: '已关闭',
         orders: this.orderClose
       }]
+    },
+    orderType () {
+      switch (this.$getFlash('orderType')) {
+        case 'all':return '全部订单'; break
+        case 'unpaid':return '未付款'; break
+        case 'complete':return '已完成'; break
+        case 'close':return '已取消'; break
+      }
+    },
+    userInfo () {
+      return this.$store.state.user
     }
   },
   methods: {
-    init: function () {
-      // 标一下全局状态
-      switch (this.$route.query.orderType) {
-        case 'all':this.orderType = '全部订单'; break
-        case 'unpaid':this.orderType = '未付款'; break
-        case 'complete':this.orderType = '已完成'; break
-        case 'close':this.orderType = '已取消'; break
+    async init () {
+      try {
+        await this.getOrder()
+      } catch (e) {
+        this.status = 'error'
+        throw e
       }
-
-      // 获取数据，然后总价需要计算一下
-      this.userInfo = this.$store.state.user
-      this.getOrder()
+      JSON.stringify(this.order) !== '{}' ? this.status = false : this.status = 'empty'
     },
     async getOrder () {
-      let res = await this.$tkParse.get('/classes/order', {
-        params: { // url参数
-          // include:'user',
+      this.orders = await this.$tkParse.getList('/classes/order', {
+        params: {
           order: '-createdAt',
           where: {
             user: this.userInfo.objectId
           }
         }
-      }).catch(e => {
-        // error code
-        throw e
       })
-      this.orders = res.data.results
+      this.fixOrder()
+    },
 
-      // 算一下总价
-      /* orderUnpaid:[],
-          orderComplete:[],
-          orderClose:[] */
-
+    // 这个适配器是必须的，移植computed完全没有必要
+    fixOrder () {
       this.orders.forEach((n, i) => {
         n['price'] = 0
         switch (n.status) {
@@ -126,10 +126,10 @@ export default {
         })
       })
     },
-    goCartDetail: function (opt) {
+    goCartDetail (opt) {
       this.$push({
         path: '/buyer/cartDetail',
-        query: {
+        flash: {
           cart_objectId: opt.objectId
         }
       })

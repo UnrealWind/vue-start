@@ -1,13 +1,13 @@
 <template>
   <tk-container class="shop" :status="status">
     <tkui-header slot="header" background="white" color="#333" center>
-      <tkui-button slot="left" class="icon" @click="$back()">
+      <tkui-button slot="left" class="icon" @click="$back">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>
-      {{shop.shopName}}
+      {{shopName}}
     </tkui-header>
     <tkui-list>
-      <tkui-list-item divider v-for="opt in commodity" >
+      <tkui-list-item divider v-for="opt in currentCommodity" >
         <tk-image  slot="left" alt="标签照" :src="opt.tagImg"  class="avatar"></tk-image>
         <div class="content"  @click="goCommodityPage(opt)">
           <div class="title">{{opt.modelName}}</div>
@@ -23,52 +23,53 @@
 export default {
   name: 'shopDetail',
   layout: '',
-  data: function () {
+  data () {
     return {
       commodity: [],
       // waiting - 加载中  loading-  empty-
       status: 'loading'
     }
   },
-  mounted: function () {
+  mounted () {
     this.init()
   },
   computed: {
-    shop () {
-      return this.$route.query.shop
+    shopId () {
+      return this.$getFlash('shopId')
+    },
+    shopName () {
+      return this.$getFlash('shopName')
+    },
+    currentCommodity () {
+      return this.commodity
     }
   },
   methods: {
-    init () {
+    async init () {
       try {
-        this.getCommodity()
+        await this.getCommodity()
       } catch (e) {
-        // code
+        this.status = 'error'
         throw e
       }
+      this.commodity.length > 0 ? this.status = false : this.status = 'empty'
     },
     async getCommodity () {
-      let res = await this.$tkParse.get('/classes/model', {
+      this.commodity = await this.$tkParse.getList('/classes/model', {
         params: { // url参数
           where: {
-            user: this.shop
+            user: this.shopId
           }
         }
-      }).catch(e => {
-        // error code
-        this.status = 'empty'
-        throw e
       })
-      res.data.results.length > 0 ? this.status = false : this.status = 'empty'
-      this.commodity = res.data.results
     },
-    goCommodityPage: function (opt) {
+    goCommodityPage (opt) {
       this.$push({
         path: '/buyer/commodityDetail',
-        query: {
+        flash: {
           commodity: opt.objectId,
-          shop: this.shop,
-          shopName: this.$route.query.shopName
+          shopId: this.shopId,
+          shopName: this.shopName
         }
       })
     }

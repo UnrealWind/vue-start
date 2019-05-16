@@ -1,15 +1,15 @@
 <template>
-  <tk-container class="commodity">
+  <tk-container class="commodity" :status="status">
     <tkui-header slot="header" background="white" color="#333" center>
       <tkui-button slot="left" class="icon" @click="$back">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>
       商品详情
     </tkui-header>
-    <tk-image width="300" height="300" style="width: 100%" :src="commodity.tagImg" ></tk-image>
+    <tk-image width="300" height="300" style="width: 100%" :src="currentCommodity.tagImg" ></tk-image>
     <div class="commodity-des">
-      <h3>¥{{commodity.price}}</h3>
-      <div class="des">{{commodity.modelName}}</div>
+      <h3>¥{{currentCommodity.price}}</h3>
+      <div class="des">{{currentCommodity.modelName}}</div>
       <div class="des-min">最近上新</div>
     </div>
     <div class="buy">
@@ -27,17 +27,17 @@
         <h4>商品说明</h4>
       </div>
       <div class="middle">
-        <p>{{commodity.configInfo}}</p>
+        <p>{{currentCommodity.configInfo}}</p>
       </div>
     </div>
 
-    <div class="fix-footer-addin">
+    <div class="fix-footer-addin" slot="footer">
       <div class="left">
         <h4>
-          <span>合计：¥</span>{{commodity.price*quantity}}
+          <span>合计：¥</span>{{currentCommodity.price*quantity}}
         </h4>
       </div>
-      <tkui-button raised primary @click="addin()">加入购物车</tkui-button>
+      <tkui-button raised primary @click="addin">加入购物车</tkui-button>
     </div>
   </tk-container>
 </template>
@@ -46,32 +46,42 @@
 export default {
   name: 'commodityDetail',
   layout: '',
-  data: function () {
+  data () {
     return {
       commodity: {},
-      quantity: 1
+      quantity: 1,
+      status: 'loading'
     }
   },
   computed: {
     commodityId () {
-      return this.$route.query.commodity
+      return this.$getFlash('commodity')
     },
-    shop () {
-      return this.$route.query.shop
+    shopId () {
+      return this.$getFlash('shopId')
+    },
+    currentCommodity () {
+      return this.commodity
     }
   },
-  mounted: function () {
+  mounted () {
     this.init()
   },
   methods: {
-    init () {
-      this.getCommodity()
+    async init () {
+      try {
+        await this.getCommodity()
+      } catch (e) {
+        this.status = 'error'
+        throw e
+      }
+      JSON.stringify(this.commodity) !== '{}' ? this.status = false : this.status = 'empty'
     },
     async getCommodity () {
-      let res = await this.$tkParse.getFirst('/classes/model', {
+      this.commodity = await this.$tkParse.getFirst('/classes/model', {
         params: { // url参数
           where: {
-            user: this.shop,
+            user: this.shopId,
             objectId: this.commodityId
           }
         }
@@ -79,25 +89,20 @@ export default {
         // error code
         throw err
       })
-      this.commodity = res
     },
-    calculation: function (num) {
+    calculation (num) {
       if (this.quantity == 0 && Number(num) == '-1') return
       this.quantity += Number(num)
     },
-    addin: function () {
-      this.quantity > 0 ? (async () => {
+    addin () {
+      this.quantity > 0 ? (() => {
         /*
           本来以为有购物车表的，后来发现没有，就存缓存吧
           这里想了一下是在加载这个页面的时候去回溯这份数据，但是觉得这样子过于频繁的操作store了，就改成在store合并这份数据了
-        let res = await this.$tkParse.put('/classes/order/detail', [
-
-        ]);
-        res.status == '201'?this.$refs.toast.add('已经添加进购物车！'):this.$refs.toast.add('添加失败请重试！')
         */
         this.commodity['quantity'] = this.quantity
-        this.commodity['shop'] = this.shop
-        this.commodity['shopName'] = this.$route.query.shopName
+        this.commodity['shopId'] = this.shopId
+        this.commodity['shopName'] = this.$getFlash('shopName')
         this.$store.commit('setCart', this.commodity)
         this.$tkGlobal.toast.add('已经添加进购物车！')
       })() : this.$tkGlobal.toast.add('购买数量不能为0！')

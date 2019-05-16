@@ -7,7 +7,7 @@
     </tkui-header>
 
     <tkui-list>
-      <span @click="goBrandDetail()">
+      <span @click="$push({path: '/merchant/brandDetail'})">
         <tkui-list-item>
         主营品牌
         <span slot="right">
@@ -18,7 +18,7 @@
         <tk-icon color="#666" slot="right">return1</tk-icon>
       </tkui-list-item>
       </span>
-      <span @click="goChangePassword()">
+      <span @click="$push({path: '/merchant/changePassword'})">
         <tkui-list-item>
           修改密码
           <tk-icon color="#666" slot="right">return1</tk-icon>
@@ -27,7 +27,7 @@
     </tkui-list>
 
     <tkui-list>
-      <span @click="goShopAddress()">
+      <span @click="$push({path: '/merchant/shopAddress'})">
         <tkui-list-item>
           我的店铺
           <tk-icon color="#666" slot="right">return1</tk-icon>
@@ -35,7 +35,7 @@
       </span>
     </tkui-list>
 
-    <tkui-button @click="logout()" class="special" raised big block border>退出登录</tkui-button>
+    <tkui-button @click="logout" class="special" raised big block border>退出登录</tkui-button>
   </tk-container>
 </template>
 
@@ -43,7 +43,7 @@
 export default {
   name: 'merchantIndex',
   layout: '',
-  data: function () {
+  data () {
     return {
       mainBrand: [],
       status: 'loading'
@@ -52,54 +52,31 @@ export default {
   computed: {
     userInfo () {
       return this.$store.state.user
+    },
+    currentBrands () {
+      return this.mainBrand
     }
   },
-  mounted: function () {
+  mounted () {
     this.init()
   },
   methods: {
-    init () {
-      this.getBrand()
-    },
-    async getBrand () {
-      let res = await this.$tkParse.get('/classes/brand', {
-        params: { // url参数
-
-        }
-      }).catch(e => {
-        // err code
+    async init () {
+      try {
+        await this.getBrand()
+      } catch (e) {
         this.status = 'error'
         throw e
-      })
-      this.mainBrand = res.data.results
+      }
       this.mainBrand.length > 0 ? this.status = false : this.status = 'empty'
     },
-    logout: function () {
+    async getBrand () {
+      this.mainBrand = await this.$tkParse.getList('/classes/brand')
+    },
+    logout () {
       this.$replace('/login')
       this.$store.commit('setSessionToken', null)
-    },
-    goBrandDetail: function () {
-      // 这里测了测query，区别应该是flash会被销毁
-      this.$push({
-        path: '/merchant/brandDetail'
-      })
-    },
-    goChangePassword: function () {
-      this.$push({
-        path: '/merchant/changePassword'
-      })
-    },
-    goShopAddress: function () {
-      this.$push({
-        path: '/merchant/shopAddress'
-      })
-    },
-    gobikeList: function () {
-      this.$push({
-        path: '/merchant/bikeList'
-      })
     }
-
   }
 }
 </script>

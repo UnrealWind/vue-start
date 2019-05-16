@@ -1,10 +1,10 @@
 <template>
-  <tk-container  class="index"  infiniteScroll @loadingMore="loadingMore">
+  <tk-container  :status="status" class="index" infiniteScroll @loadingMore="loadingMore">
       <tkui-header slot="header" >
-        <tkui-button  @click="goCityChose()" slot="left" class="icon">
+        <tkui-button  @click="goCityChose" slot="left" class="icon">
           <tk-icon>Positioning</tk-icon>
         </tkui-button>
-        <span slot="left" class="city">{{city}}</span>
+        <span slot="left" class="city">{{cityName}}</span>
         <tkui-search-input v-model="search" place-holder="输入搜索内容" ></tkui-search-input>
         <div slot="right">
           <tkui-button @click="scan" class="icon">
@@ -19,11 +19,11 @@
       </tk-slider>
       <div class="center"><tk-image height="40" :src="speImg"></tk-image></div>
       <tkui-list>
-        <tkui-list-item divider v-for="opt in targetShop" v-if="opt && opt.shopName.indexOf(search)>-1">
+        <tkui-list-item divider v-for="opt in currentShop" >
           <tk-image slot="left"  :src="opt.storePhoto" width="1200" height="600" class="avatar"></tk-image>
           <div class="content" @click="goShopPage(opt)">
             <div class="title">{{opt.shopName}}
-              <span class="pull-right">距离：{{opt.position}}km</span>
+              <span class="pull-right">距离：{{opt.location|distance(location,$tkHelper.distance)}}km</span>
             </div>
             <div class="des">{{opt.txtLocation}}</div>
             <div v-if="opt.user" class="btn-box">
@@ -43,86 +43,116 @@
 export default {
   name: 'home',
   layout: 'home',
-  data: function () {
+  data () {
     return {
       imgs: [],
-      shop: [],
       speImg: 'http://moke-store.oss-cn-beijing.aliyuncs.com/b6813a52-5db9-4c65-a8af-60f41e9d15af.png',
       brands: [],
       mapShow: true,
-      city: '加载中',
-      position: {},
-      location: [],
+      location: {},
       search: '',
-      perPage: 5,
+      perPage: 10,
+      pageNum: 0,
+      status: 'loading',
       targetShop: []
     }
   },
-  mounted: function () {
-    this.getLocal().then(() => {
-      this.init()
-    })
+  mounted () {
+    this.init()
+  },
+  filters: {
+    distance (value, location, calculation) {
+      if (!value) return ''
+      return calculation(value, location, 'km')
+    }
   },
   computed: {
-
+    currentShop () {
+      return this.targetShop
+    },
+    currentBrands () {
+      return this.brands
+    },
+    currentImg () {
+      return this.imgs
+    },
+    cityName () {
+      if (this.$route.query.cityId) {
+        return this.$tkRegions.getName(this.$route.query.cityId)
+      } else {
+        return this.location.name || '定位中'
+      }
+    }
   },
   methods: {
-    init: function () {
+    async init () {
       try {
-        this.getSlider()
-        this.getBrand()
-        this.getShop()
+        await this.getSlider()
+        await this.getBrand()
+        // await this.getShop()
       } catch (e) {
-        // code
+        this.status = 'error'
         throw e
       }
+      this.status = false
     },
 
-    // 无限加载的例子
-    loadingMore: function (page, next) {
-      setTimeout(() => {
-        this.targetShop = this.targetShop.concat(this.shop.slice((page) * this.perPage, (page + 1) * this.perPage))
-        if (page >= 5) {
-          next('complete')
-        } else {
-          next('+1')
-        }
-      }, 1000)
+    // 无限加载
+    async loadingMore (page, next) {
+      // 初始状态不进行loadingmore操作
+      if (this.pageNum == 0) {
+        await this.getLocal()
+      }
+      await this.getShop()
+      this.targetShop = this.targetShop.concat(this.shop)
+      if (this.shop.length < this.perPage || this.shop.length === 0) {
+        next('complete')
+      } else {
+        next('+1')
+      }
+      this.pageNum++
     },
     async getSlider () {
-      let res = await this.$tkParse.get('/classes/slider', {})
-      this.imgs = res.data.results
+      this.imgs = await this.$tkParse.getList('/classes/slider')
     },
     async getBrand () {
-      let res = await this.$tkParse.get('/classes/brand', {
+      this.brands = await this.$tkParse.getList('/classes/brand', {
         params: { // url参数
           include: 'user'
         }
       })
-      this.brands = res.data.results
     },
     async getShop () {
-      let res = await this.$tkParse.get('/classes/shop', {
+      this.shop = await this.$tkParse.getList('/classes/shop', {
         params: {
-          include: 'user'
+          include: 'user',
+          limit: this.perPage,
+          skip: this.pageNum * this.perPage,
+          order: 'location',
+          where: {
+            location: {
+              $nearSphere: {
+                __type: 'GeoPoint',
+                latitude: this.location.latitude,
+                longitude: this.location.longitude
+              }
+              // $maxDistanceInKilometers: 20.0 // 附近20公里内,有需求可加
+            }
+          }
         }
       })
-      this.shop = res.data.results
-
-      // 获取数据的时候算一下距离
-      this.shop.forEach((n, i) => {
-        n['position'] = this.getPosition([n.location.latitude, n.location.longitude])
-      })
-
-      this.shop.sort(function (a, b) {
-        return a.position - b.position
+    },
+    async getLocal () {
+      // 定位是正确的了
+      this.location = await this.$tkGeolocation.getCurrentPosition({
+        parse: true
       })
     },
-    goShopPage: function (opt) {
+    goShopPage (opt) {
       this.$push({
         path: '/buyer/shopDetail',
-        query: {
-          shop: opt.user.objectId,
+        flash: {
+          shopId: opt.user.objectId,
           shopName: opt.shopName
         }
       })
@@ -130,14 +160,12 @@ export default {
     checkResult (result) {
       // 对result进行判断，当返回true时,扫码成功，扫描器关闭
       this.$refs.scaner.close()
-      result ? (() => {
-        this.$push({
-          path: '/buyer/cartDetail',
-          query: {
-            cart_objectId: result
-          }
-        })
-      })() : this.$refs.toast.add('扫码失败！请重试')
+      result ? this.$push({
+        path: '/buyer/cartDetail',
+        query: {
+          cart_objectId: result
+        }
+      }) : this.$refs.toast.add('扫码失败！请重试')
     },
     async scan () {
       // scanResult 为成功扫描后返回的数据
@@ -148,28 +176,11 @@ export default {
           throw e
         })
     },
-    async getLocal () {
-      // 定位是正确的了
-      let position = await this.$tkGeolocation.getCurrentPosition({
-        parse: true
-      })
-      this.$getFlash('city') ? this.city = this.$getFlash('city').name : this.city = position.name
-      this.location = [position.latitude, position.longitude]
-    },
-    getPosition: function (posi1) {
-      return this.$tkHelper.distance({
-        latitude: posi1[0],
-        longitude: posi1[1]
-      }, {
-        latitude: this.location[0],
-        longitude: this.location[1]
-      }, 'km')
-    },
     goCityChose () {
       this.$push({
         path: '/buyer/cityChose',
-        query: {
-          targetCity: this.city
+        flash: {
+          cityName: this.cityName
         }
       })
     }

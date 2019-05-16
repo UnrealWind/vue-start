@@ -28,7 +28,7 @@
       </tkui-list-item>
     </tkui-list>
 
-    <tkui-button class="circle-btn" icon raised @click="newBike()">
+    <tkui-button class="circle-btn" icon raised @click="newBike">
       <tk-icon color="#fff">plus</tk-icon>
     </tkui-button>
 
@@ -39,17 +39,17 @@
 export default {
   name: 'bikeBrand',
   layout: '',
-  data: function () {
+  data () {
     return {
       commodity: [],
       status: 'loading'
     }
   },
-  activated: function () {
+  activated () {
     // fydebug 这里是因为 $back 不会触发mounted ,可能有更好的方法吧
     this.init()
   },
-  mounted: function () {
+  mounted () {
     // this.init()
   },
   computed: {
@@ -57,37 +57,38 @@ export default {
       return this.$store.state.user
     },
     brandId () {
-      this.$route.query.brandId
+      return this.$getFlash('brandId')
     }
   },
   methods: {
-    init () {
-      this.getModel()
+    async init () {
+      try {
+        await this.getModel()
+      } catch (e) {
+        this.status = 'error'
+        throw e
+      }
+      this.commodity.length > 0 ? this.status = false : this.status = 'empty'
     },
     async getModel () {
       // 这一页和之前商品列表是差不多的，再次验证了一下查询逻辑
-      let res = await this.$tkParse.getList('/classes/model', {
+      this.commodity = await this.$tkParse.getList('/classes/model', {
         params: { // url参数
           where: {
             user: this.shop.objectId,
             brand: this.brandId
           }
         }
-      }).catch(e => {
-        this.status = 'error'
-        throw e
       })
-      this.commodity = res
-      this.commodity.length > 0 ? this.status = false : this.status = 'empty'
     },
-    newBike: function (opt) {
-      let query
-      opt ? query = {
+    newBike (opt) {
+      let flash
+      opt ? flash = {
         bikeId: opt.objectId
-      } : query = null
+      } : flash = null
       this.$push({
         path: '/merchant/newBike',
-        query: query
+        flash: flash
       })
     }
   }

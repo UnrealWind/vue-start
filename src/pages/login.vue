@@ -8,13 +8,13 @@
     </div>
 
     <tkui-form ref="form_all">
-      <tkui-list v-if="targetTab == 'tabs1'">
+      <tkui-list v-if="targetTab == 'phoneLogin'">
         <tkui-list-item>
           <tk-icon slot="left" material>phone_iphone</tk-icon>
           <tkui-form ref="form_phone">
             <tkui-input v-model="phone" label=""  rulers="required" noborder placeHolder="请输入手机号"></tkui-input>
           </tkui-form>
-          <p slot="right" class="blue" @click="getCode()">获取验证码</p>
+          <p slot="right" class="blue" @click="getCode">获取验证码</p>
         </tkui-list-item>
         <tkui-list-item>
           <tk-icon slot="left" material>lock_outline</tk-icon>
@@ -22,7 +22,7 @@
         </tkui-list-item>
       </tkui-list>
 
-      <tkui-list v-if="targetTab == 'tabs2'">
+      <tkui-list v-if="targetTab == 'passwordLogin'">
         <tkui-list-item>
           <tk-icon slot="left" material>phone_iphone</tk-icon>
           <tkui-input v-model="username" label=""  rulers="required" noborder placeHolder="请输入账号"></tkui-input>
@@ -33,7 +33,7 @@
         </tkui-list-item>
       </tkui-list>
     </tkui-form>
-    <tkui-button primary raised big block @click="setUser()">登录</tkui-button>
+    <tkui-button primary raised big block @click="login">登录</tkui-button>
   </tk-container>
 </template>
 
@@ -41,13 +41,13 @@
 export default {
   name: 'login',
   layout: '',
-  data: function () {
+  data () {
     return {
       tabs: {
-        tabs1: '手机号登录',
-        tabs2: '账号登录'
+        phoneLogin: '手机号登录',
+        passwordLogin: '账号登录'
       },
-      targetTab: 'tabs1',
+      targetTab: 'phoneLogin',
       phone: '18515889438', // 电话号码
       username: '', // 用户名
       password: '', // 密码
@@ -63,46 +63,45 @@ export default {
   methods: {
     // 用户登录
     async userLogin () {
-      let res = await this.$tkParse.post('/login', {
+      return await this.$tkParse.post('/login', {
         username: this.username,
         password: this.password
       }).catch(e => {
         this.$tkGlobal.toast.add('登录失败！请重试！')
-        throw e
       })
-      return res
     },
 
     // 手机号登录
     async phoneLogin () {
-      let res = await this.$tkParse.post('/loginByPhone', {
+      return await this.$tkParse.post('/loginByPhone', {
         phone: this.phone,
         code: this.code
       }).catch(e => {
         this.$tkGlobal.toast.add('登录失败！请重试！')
-        throw e
       })
-      return res
     },
-    setUser () {
-      let jud = this.$refs.form_all.validate()
-      jud.length == 0
-        ? this.targetTab == 'tabs1'
-          ? this.phoneLogin().then(res => {
-            res.data['role'] = 'buyer'
-            this.jump(res)
-            this.$push('/')
-          }) : this.userLogin().then(res => {
-            res.data['role'] = 'merchant'
-            this.jump(res)
 
-            // 这里业务逻辑让跳转这个页面为第一个页面
-            this.$push('/merchant/bikeList')
-          }) : ''
+    // 登录
+    async login () {
+      let jud = this.$refs.form_all.validate()
+      if (jud.length !== 0) return
+      if (this.targetTab == 'phoneLogin') {
+        let res = await this.phoneLogin()
+        res.data['role'] = 'buyer'
+        this.setInfo(res)
+        this.$push('/')
+      } else {
+        let res = await this.userLogin()
+        res.data['role'] = 'merchant'
+        this.setInfo(res)
+
+        // 这里业务逻辑让跳转这个页面为第一个页面,本来我以为是跳转到merchantIndex的
+        this.$push('/merchant/bikeList')
+      }
     },
 
     // 这里校验一下非空进行不同的store存储 this.$store.commit('setSessionToken',this.username)
-    jump (res) {
+    setInfo (res) {
       this.$store.commit('setSessionToken', res.data.sessionToken)
       this.$store.commit('setUser', res.data)
       this.$tkParse.setSessionToken(res.data.sessionToken)

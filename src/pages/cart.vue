@@ -3,7 +3,7 @@
     <tkui-header slot="header" center>购物车</tkui-header>
     <tkui-list v-for="(commoditys, shopId) in cart">
       <div class="list-header">
-        <h2>{{commoditys[0].shop.shopName}}</h2>
+        <h2>{{commoditys[0].shopName}}</h2>
       </div>
       <tkui-list-item disableHover divider v-for="commodity in commoditys">
         <tk-image slot="left"  :src="commodity.tagImg"  class="avatar"></tk-image>
@@ -38,7 +38,7 @@ import footerAddin from '../component/footer-addin.vue'
 export default {
   name: 'cart',
   layout: 'home',
-  data: function () {
+  data () {
     return {
       totalPrice: 0,
       // waiting - 加载中  loading-  empty-
@@ -54,7 +54,7 @@ export default {
       return JSON.parse(JSON.stringify(this.$store.state.cart))
     }
   },
-  mounted: function () {
+  mounted () {
     this.calculationPrice()
     Object.keys(this.cart).length > 0 ? this.status = false : this.status = 'empty'
   },
@@ -78,7 +78,7 @@ export default {
       })
       this.$push({
         path: '/buyer/cartDetail',
-        query: {
+        flash: {
           cart_objectId: res.data.objectId
         }
       })
@@ -92,7 +92,7 @@ export default {
           detail.push({
             shop: {
               shopName: n.shopName,
-              objectId: n.shop
+              objectId: n.shopId
             },
             price: n.price,
             tagimg: n.tagImg,
@@ -104,14 +104,14 @@ export default {
       };
       return detail
     },
-    calculationPrice: function () {
+    calculationPrice () {
       for (let i in this.cart) {
         this.cart[i].forEach((n, i) => {
           this.totalPrice += n.price * n.quantity
         })
       }
     },
-    calculation: function (num, commodity) {
+    calculation (num, commodity) {
       if (commodity.quantity == 0 && Number(num) == '-1') return
       commodity.quantity += Number(num)
       this.totalPrice += Number(num) * commodity.price

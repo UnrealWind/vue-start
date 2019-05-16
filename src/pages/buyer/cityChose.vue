@@ -12,7 +12,7 @@
           <div class="des">当前定位城市</div>
           <div class="title">
             <tk-icon>Positioning1</tk-icon>
-            {{targetCity}}
+            {{cityName}}
           </div>
         </div>
       </tkui-list-item>
@@ -36,9 +36,8 @@
 export default {
   name: 'cityChose',
   layout: '',
-  data: function () {
+  data () {
     return {
-      targetCity: '加载中',
       perPage: 20,
       targetList: {}
     }
@@ -46,10 +45,12 @@ export default {
   computed: {
     cityList () {
       return this.$tkRegions.getCityList()
+    },
+    cityName () {
+      return this.$getFlash('cityName') || '请选择城市位置'
     }
   },
-  mounted: function () {
-    this.targetCity = this.$route.query.targetCity
+  mounted () {
     this.init()
   },
   methods: {
@@ -69,24 +70,14 @@ export default {
       }
       return newObj// 返回排好序的新对象
     },
-    /*
-      无限加载的例子
-     loadingMore: function (page, next) {
-      let that = this
-      setTimeout(() => {
-        // this.num = (page + 1) * this.perPage
-        that.targetList = that.targetList.concat(that.cityList.slice((page) * that.perPage, (page + 1) * that.perPage))
-        if (false) {
-          next('complete')
-        } else {
-          next('+1')
-        }
-      }, 1000)
-    }, */
-    setCity: function (opt) {
+    setCity (opt) {
       // 这里想了一下，这个应该是作为筛选条件出现的，把这个传回去，然后作为筛选条件
-      this.$back()
-      this.$setFlash('city', opt)
+      this.$back({
+        path: '/',
+        query: {
+          cityId: opt.code
+        }
+      })
     }
   }
 }

@@ -7,7 +7,7 @@
     </tkui-header>
     <h2>主营品牌</h2>
     <tk-flex wrap>
-      <div @click="chose(opt)" class="item tk-grid-4" v-for="opt in brands">
+      <div @click="chose(opt)" class="item tk-grid-4" v-for="opt in currentBrands">
         <tkui-button border primary v-show="!opt.active">{{opt.name}}</tkui-button>
         <tkui-button raised primary v-show="opt.active">{{opt.name}}</tkui-button>
       </div>
@@ -19,14 +19,14 @@
 export default {
   name: 'brandDetail',
   layout: '',
-  data: function () {
+  data () {
     return {
       mainBrand: [],
       brands: [],
       status: 'loading'
     }
   },
-  mounted: function () {
+  mounted () {
     this.init()
   },
 
@@ -35,28 +35,43 @@ export default {
   computed: {
     userInfo () {
       return this.$store.state.user
+    },
+    currentBrands () {
+      if (!this.mainBrand.length === 0) return
+      return this.resetBrands()
     }
   },
   methods: {
-    init () {
-      this.getBrand()
+    async init () {
+      try {
+        await this.getBrand()
+      } catch (e) {
+        this.status = 'error'
+        throw e
+      }
+      this.mainBrand.length > 0 ? this.status = false : this.status = 'empty'
     },
-    chose: function (opt) {
-      opt['active'] ? (opt['active'] = false, this.userInfo.mainBrand.splice(this.userInfo.mainBrand.indexOf(opt.objectId), 1))
-        : (opt['active'] = true, this.userInfo.mainBrand = this.userInfo.mainBrand.concat([opt.objectId]))
+    chose (opt) {
+      if (opt['active']) {
+        opt['active'] = false
+        this.userInfo.mainBrand.splice(this.userInfo.mainBrand.indexOf(opt.objectId), 1)
+      } else {
+        opt['active'] = true
+        this.userInfo.mainBrand = this.userInfo.mainBrand.concat([opt.objectId])
+      }
       this.putUser()
     },
     async putUser () {
       // ..  这里更新数据的文档写的有些模糊了，不过结合上下文来看是这么写，试了一下是可以的
       let res = await this.$tkParse.put('/classes/_User/' + this.$store.state.user.objectId, {
         mainBrand: this.userInfo.mainBrand
-      }, {}).catch(err => {
-        // err code
-        throw err
+      }, {}).catch(e => {
+        this.status = 'error'
+        throw e
       })
       this.$store.commit('setUser', this.userInfo)
     },
-    resetBrands: function () {
+    resetBrands () {
       let that = this
       let brand = JSON.parse(JSON.stringify(this.mainBrand))
       !that.userInfo.mainBrand ? that.userInfo.mainBrand = [] : ''
@@ -66,21 +81,10 @@ export default {
           ni == n.objectId ? n['active'] = true : ''
         })
       })
-      this.brands = brand
+      return brand
     },
     async getBrand () {
-      let res = await this.$tkParse.get('/classes/brand', {
-        params: { // url参数
-
-        }
-      }).catch(e => {
-        // err code
-        this.status = 'error'
-        throw e
-      })
-      this.mainBrand = res.data.results
-      this.mainBrand.length > 0 ? this.status = false : this.status = 'empty'
-      this.resetBrands()
+      this.mainBrand = await this.$tkParse.getList('/classes/brand')
     }
   }
 }

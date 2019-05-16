@@ -1,7 +1,7 @@
 <template>
-  <tk-container>
-    <tkui-header slot="header" center>
-      <tkui-button slot="left" class="icon" @click="back()">
+  <tk-container :status="status">
+    <tkui-header slot="header" center >
+      <tkui-button slot="left" class="icon" @click="$replace('/')">
         <tk-icon material>keyboard_arrow_left</tk-icon>
       </tkui-button>订单详情
     </tkui-header>
@@ -38,53 +38,56 @@
 export default {
   name: 'cartDetail',
   layout: '',
-  data: function () {
+  data () {
     return {
-      cart: {},
-      paidStatus: '',
-      cart_objectId: this.$route.query.cart_objectId,
-      order: {}
+      order: {},
+      status: 'loading'
     }
   },
   computed: {
     totalPrice () {
       return this.order.totalFee || 0
+    },
+    cart_objectId () {
+      return this.$getFlash('cart_objectId')
+    },
+    cart () {
+      if (!this.order.detail) return {}
+      let cart = {}
+      this.order.detail.forEach((ni, yi) => {
+        !cart[ni.shop.objectId] ? cart[ni.shop.objectId] = [ni] : cart[ni.shop.objectId].push(ni)
+      })
+      return cart
+    },
+    paidStatus () {
+      switch (this.order) {
+        case 'unpaid':return '未付款'; break
+        case 'complete':return '已完成'; break
+        case 'close':return '已关闭'; break
+      }
     }
   },
-  mounted: function () {
+  mounted () {
     this.init()
   },
   methods: {
-    init () {
-      this.getOrder()
+    async init () {
+      try {
+        await this.getOrder()
+      } catch (e) {
+        this.status = 'error'
+        throw e
+      }
+      JSON.stringify(this.order) !== '{}' ? this.status = false : this.status = 'empty'
     },
     async getOrder () {
-      let res = await this.$tkParse.getFirst('/classes/order', {
+      this.order = await this.$tkParse.getFirst('/classes/order', {
         params: { // url参数
           where: {
             objectId: this.cart_objectId
           }
         }
-      }).catch(err => {
-        // error code
-        throw err
       })
-      this.order = res
-
-      // 适配器
-      res.detail.forEach((ni, yi) => {
-        !this.cart[ni.shop.objectId] ? this.cart[ni.shop.objectId] = [ni] : this.cart[ni.shop.objectId].push(ni)
-      })
-
-      // 这里任意一条数据的状态就代表了整个订单的状态，所以用的第一条数据的
-      switch (res.status) {
-        case 'unpaid':this.paidStatus = '未付款'; break
-        case 'complete':this.paidStatus = '已完成'; break
-        case 'close':this.paidStatus = '已关闭'; break
-      }
-    },
-    back: function () {
-      this.$replace('/')
     }
   }
 }
@@ -179,6 +182,5 @@ export default {
   .status {
     background-image: url(http://moke-store.oss-cn-beijing.aliyuncs.com/64df0cb9-a4fd-458a-a486-91a7aaebd105.png);
     height:60px;
-    color:#fff;
   }
 </style>

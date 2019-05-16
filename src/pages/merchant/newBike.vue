@@ -1,5 +1,5 @@
 <template>
-  <tk-container class="shop">
+  <tk-container :status="status" class="shop">
     <tkui-header slot="header" background="white" color="#333" center>
       <tkui-button slot="left" class="icon" @click="$back">
         <tk-icon material>keyboard_arrow_left</tk-icon>
@@ -28,7 +28,7 @@
       </div>
     </tkui-list>
     <span>
-      <tkui-button v-if='btnType' primary raised big block @click="commit()">提交</tkui-button>
+      <tkui-button v-if='btnType' primary raised big block @click="commit">提交</tkui-button>
       <tkui-button v-else primary raised big block disabled>图片上传中……</tkui-button>
     </span>
   </tk-container>
@@ -38,7 +38,7 @@
 export default {
   name: 'newBike',
   layout: '',
-  data: function () {
+  data () {
     return {
       bikeName: '',
       type: 'image',
@@ -48,9 +48,9 @@ export default {
       price: 0,
       des: '',
       brand: '',
-      brands: null,
       btnType: true,
-      bike: {}
+      bike: {},
+      status: 'loading'
     }
   },
   computed: {
@@ -59,46 +59,53 @@ export default {
     },
     userInfo () {
       return this.$store.state.user
+    },
+    brands () {
+      let brands = {}
+      this.mainBrand.forEach((n, i) => {
+        this.userInfo.mainBrand.forEach((ni, ii) => {
+          ni == n.objectId ? brands[n.objectId] = n.name : ''
+        })
+      })
+      return brands
     }
   },
-  mounted: function () {
+  mounted () {
     this.init()
   },
   methods: {
-    init () {
-      this.getBrand()
-      this.$route.query.bikeId ? this.getBike() : ''
+    async init () {
+      try {
+        this.getBrand()
+        this.$getFlash('bikeId') ? this.getBike() : ''
+      } catch (e) {
+        this.status = 'error'
+        throw e
+      }
     },
     async getBike () {
-      let res = await this.$tkParse.getFirst('/classes/model', {
+      this.bike = await this.$tkParse.getFirst('/classes/model', {
         params: {
           where: {
-            objectId: this.$route.query.bikeId
+            objectId: this.$getFlash('bikeId')
           }
         }
       }).catch(e => {
         throw e
       })
-      this.bike = res
-      this.bikeName = res.modelName
-      this.brand = res.brand
-      this.price = res.price
-      this.des = res.configInfo
-      this.file['url'] = res.tagImg
+      JSON.stringify(this.bike) !== '{}' ? this.status = false : this.status = 'empty'
+      this.bikeName = this.bike.modelName
+      this.brand = this.bike.brand
+      this.price = this.bike.price
+      this.des = this.bike.configInfo
+      this.file['url'] = this.bike.tagImg
     },
     async getBrand () {
-      let res = await this.$tkParse.getList('/classes/brand', {
+      this.mainBrand = await this.$tkParse.getList('/classes/brand', {
         params: {}
       }).catch(e => {
         throw e
       })
-      this.brands = {}
-      res.forEach((n, i) => {
-        this.userInfo.mainBrand.forEach((ni, ii) => {
-          ni == n.objectId ? this.brands[n.objectId] = n.name : ''
-        })
-      })
-      this.mainBrand = res
     },
     pick () {
       this.$tkFile.pick({
@@ -116,7 +123,7 @@ export default {
       })
     },
     async postModel () {
-      let res = await this.$tkParse.post('/classes/model', {
+      await this.$tkParse.post('/classes/model', {
         user: this.userInfo.objectId,
         price: Number(this.price),
         tagImg: this.file.url || null,
@@ -131,7 +138,7 @@ export default {
       this.$back()
     },
     async putModel () {
-      let res = await this.$tkParse.put('/classes/model/' + this.$route.query.bikeId, {
+      await this.$tkParse.put('/classes/model/' + this.$route.query.bikeId, {
         user: this.userInfo.objectId,
         price: Number(this.price),
         tagImg: this.file.url || null,
@@ -146,7 +153,7 @@ export default {
       this.$back()
     },
     commit () {
-      !this.$route.query.bikeId ? this.postModel() : this.putModel()
+      !this.$getFlash('bikeId') ? this.postModel() : this.putModel()
     }
   }
 }

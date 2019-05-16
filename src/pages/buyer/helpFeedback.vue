@@ -10,7 +10,7 @@
         <textarea v-model="msg"  placeHolder="请输入反馈"></textarea>
       </tkui-list-item>
     </tkui-list>
-    <tkui-button primary raised big block @click="commit()">提交</tkui-button>
+    <tkui-button primary raised big block @click="commit">提交</tkui-button>
   </tk-container>
 </template>
 
@@ -18,7 +18,7 @@
 export default {
   name: 'helpFeedback',
   layout: '',
-  data: function () {
+  data () {
     return {
       msg: ''
     }

@@ -16,22 +16,22 @@
         </div>
       </tkui-list-item>
 
-      <tkui-list-item @click.native="showModel()">
+      <tkui-list-item @click.native="changeModel">
         <div class="content">
           <div class="title">昵称</div>
         </div>
         <span slot="right">{{userInfo.username}}</span>
       </tkui-list-item>
     </tkui-list>
-    <tkui-button @click="logout()" class="special" raised big block border>退出登录</tkui-button>
+    <tkui-button @click="logout" class="special" raised big block border>退出登录</tkui-button>
 
     <tkui-dialog :show.sync="show" center>
       <div class="subhead">
         <tkui-input v-model="userInfo.username" label="用户名"></tkui-input>
       </div>
       <template slot="action">
-        <button class="tkui-dialog-button" @click="close">取消</button>
-        <button class="tkui-dialog-button primary" @click="save()">确定</button>
+        <button class="tkui-dialog-button" @click="changeModel">取消</button>
+        <button class="tkui-dialog-button primary" @click="save">确定</button>
       </template>
     </tkui-dialog>
 
@@ -42,7 +42,7 @@
 export default {
   name: 'persionInfo',
   layout: '',
-  data: function () {
+  data () {
     return {
       userInfo: {},
       type: 'image',
@@ -51,7 +51,7 @@ export default {
       show: false
     }
   },
-  mounted: function () {
+  mounted () {
     this.userInfo = this.$store.state.user
     this.userInfo.avatar ? this.file = {
       url: this.userInfo.avatar
@@ -59,11 +59,11 @@ export default {
   },
   computed: {
     isImage () {
-      // return this.file && /image/.test(this.file.file.type)
+      return this.file && /image/.test(this.file.file.type)
     }
   },
   methods: {
-    logout: function () {
+    logout () {
       this.$replace('/login')
       this.$store.commit('setSessionToken', null)
     },
@@ -72,31 +72,28 @@ export default {
         type: this.type,
         from: this.from
       }).then(file => {
-        this.change()
+        this.change(file)
       }).catch(e => {
         throw e
       })
     },
-    async change () {
-      let res1 = await this.$tkParse.post('/files', file.buffer)
-      this.file = res1.data
-      let res2 = await this.$tkParse.put('/classes/_User/' + this.$store.state.user.objectId, {
+    async change (file) {
+      let res = await this.$tkParse.post('/files', file.buffer)
+      this.file = res.data
+      await this.$tkParse.put('/classes/_User/' + this.$store.state.user.objectId, {
         avatar: this.file.url
       }, {}).catch(e => {
         this.$tkGlobal.toast.add('修改失败，请重试！')
         throw e
       })
       this.$tkGlobal.toast.add('修改成功！')
-      this.$store.commit('add', { key: 'avatar', value: res1.url })
+      this.$store.commit('add', { key: 'avatar', value: this.file.url })
     },
-    showModel () {
-      this.show = true
-    },
-    close () {
-      this.show = false
+    changeModel () {
+      this.show = !this.show
     },
     async save () {
-      let res2 = await this.$tkParse.put('/classes/_User/' + this.$store.state.user.objectId, {
+      await this.$tkParse.put('/classes/_User/' + this.$store.state.user.objectId, {
         username: this.userInfo.username
       }, {}).catch(e => {
         this.$tkGlobal.toast.add('修改失败，请重试！')

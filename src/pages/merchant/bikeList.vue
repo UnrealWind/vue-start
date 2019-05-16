@@ -1,7 +1,7 @@
 <template>
   <tk-container :status="status" class="shop">
     <tkui-header slot="header" background="white" color="#333" center>
-      <tkui-button slot="left" class="icon" @click="back()">
+      <tkui-button slot="left" class="icon" @click="$push('/merchant/merchantIndex')">
         <tk-icon>me1</tk-icon>
       </tkui-button>
       库存列表
@@ -9,16 +9,16 @@
 
     <tkui-list v-if=" shop && shop.objectId">
       <span v-for="brand in shop.mainBrand">
-        <tkui-list-item divider v-if="brand == opt.objectId"  v-for="(opt,index) in brands">
+        <tkui-list-item divider v-if="brand == opt.objectId"  v-for="(opt,index) in currentBrands">
         <tk-image slot="left"  :src="opt.logo"  class="avatar"></tk-image>
         <div class="content"  @click="goBikeBrand(opt)">
           <div class="title">{{opt.name}}</div>
-          <div class="des"><span v-if="opt.objectId == info.brand" v-for="(info,index) in commodity">{{info.modelName}}</span></div>
+          <div class="des"><span v-if="opt.objectId == info.brand" v-for="(info,index) in currentCommodity">{{info.modelName}}</span></div>
         </div>
       </tkui-list-item>
       </span>
     </tkui-list>
-    <tkui-button class="circle-btn" icon raised @click="newBike()">
+    <tkui-button class="circle-btn" icon raised @click="$push( '/merchant/newBike')">
       <tk-icon color="#fff">plus</tk-icon>
     </tkui-button>
   </tk-container>
@@ -28,7 +28,7 @@
 export default {
   name: 'bikeList',
   layout: '',
-  data: function () {
+  data () {
     return {
       commodity: [],
       brands: [],
@@ -38,10 +38,19 @@ export default {
   computed: {
     shop () {
       return this.$store.state.user
+    },
+    currentBrands () {
+      return this.brands
+    },
+    currentCommodity () {
+      return this.commodity
     }
   },
-  mounted: function () {
+  created () {
     this.init()
+  },
+  mounted () {
+    // this.init()
   },
   beforeRouteLeave (to, from, next) {
     // 使用了这个让用户不用误操作后退键回到login页面
@@ -54,50 +63,33 @@ export default {
       // 看了一下可以使用 batch 进行批量处理，我会在别的页面进行 batch 的使用处理这种多个请求同时进行的情况
       try {
         await this.getBrand()
-        await this.getModel()
+        await this.getCommodity()
       } catch (e) {
         // error code
         this.status = 'error'
         throw e
       }
-    },
-    async getBrand () {
-      let res = await this.$tkParse.getList('/classes/brand', {
-        params: { // url参数
-
-        }
-      }).catch(e => {
-        throw e
-      })
-      this.brands = res
+      // brands是主体
       this.brands.length > 0 ? this.status = false : this.status = 'empty'
     },
-    async getModel () {
-      let res = await this.$tkParse.getList('/classes/model', {
+    async getBrand () {
+      this.brands = await this.$tkParse.getList('/classes/brand')
+    },
+    async getCommodity () {
+      this.commodity = await this.$tkParse.getList('/classes/model', {
         params: { // url参数
           where: {
             user: this.shop.objectId
           }
         }
-      }).catch(e => {
-        throw e
       })
-      this.commodity = res
     },
-    back: function () {
-      this.$push('/merchant/merchantIndex')
-    },
-    goBikeBrand: function (opt) {
+    goBikeBrand (opt) {
       this.$push({
         path: '/merchant/bikeBrand',
-        query: {
+        flash: {
           brandId: opt.objectId
         }
-      })
-    },
-    newBike: function () {
-      this.$push({
-        path: '/merchant/newBike'
       })
     }
   }

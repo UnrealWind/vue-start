@@ -36,7 +36,7 @@
       </div>
     </tkui-list>
 
-    <tkui-button @click="save()" primary raised big block border>保存</tkui-button>
+    <tkui-button @click="save" primary raised big block border>保存</tkui-button>
   </tk-container>
 </template>
 
@@ -44,7 +44,7 @@
 export default {
   name: 'shopAddress',
   layout: '',
-  data: function () {
+  data () {
     return {
       type: 'image',
       from: 'camera',
@@ -58,17 +58,21 @@ export default {
       shopId: ''
     }
   },
-  mounted: function () {
+  mounted () {
     this.init()
   },
   computed: {
     isImage () {
-      // return this.file && /image/.test(this.file.url)
+      return this.file && /image/.test(this.file.url)
     }
   },
   methods: {
     async init () {
-      await this.getShop()
+      try {
+        await this.getShop()
+      } catch (e) {
+        throw e
+      }
       this.initMap()
     },
     async getShop () {
@@ -78,9 +82,6 @@ export default {
             user: this.$store.state.user.objectId
           }
         }
-      }).catch(e => {
-        // err code
-        throw e
       })
       this.shopName = res.shopName
       this.location = res.location
@@ -88,11 +89,11 @@ export default {
       !this.file.url ? this.file['url'] = res.storePhoto : ''
       this.shopId = res.objectId
     },
-    save: function () {
+    save () {
       let url, method
       this.shopId ? (url = '/classes/shop/' + this.shopId, method = 'put') : (url = '/classes/shop', method = 'post')
       !this.location || !this.location.latitude
-        ? this.$refs.toast.add('请在地图上选择您的店铺位置！') : this.changeShop(method, url)
+        ? this.$tkGlobal.toast.add('请在地图上选择您的店铺位置！') : this.changeShop(method, url)
     },
     async changeShop (method, url) {
       let res = await this.$tkParse[method](url, {
@@ -105,10 +106,10 @@ export default {
         // err code
         throw e
       })
-      this.$refs.toast.add('店铺修改成功！')
+      this.$tkGlobal.toast.add('店铺修改成功！')
       this.shopId = res.data.objectId
     },
-    initMap: function () {
+    initMap () {
       let that = this
       let map = new AMap.Map('container', {
         resizeEnable: true,
@@ -133,7 +134,6 @@ export default {
 
       // 为地图注册click事件获取鼠标点击出的经纬度坐标
       map.on('click', function (e) {
-        /*! e.lnglat?that.$refs.toast.add('请选择更详细的的地址！'):that.$refs.toast.add('定位成功'); */
         that.location = {
           __type: 'GeoPoint',
           latitude: e.lnglat.lat,
@@ -145,11 +145,12 @@ export default {
         }]
         map.clearMap()
         markers.forEach(function (marker) {
+          // 这里记一下，直接进行new操作是不符合eslint规范的
           new AMap.Marker({
             map: map,
             icon: marker.icon,
             position: [marker.position[0], marker.position[1]],
-            offset: new AMap.Pixel(-13, -30)
+            offset: new AMap.Pixel(-30, -60)
           })
         })
       })
@@ -164,6 +165,7 @@ export default {
           this.file = res1.data
         })()
       }).catch(e => {
+        this.$tkGlobal.toast.add('图片上传失败！')
         throw e
       })
     }

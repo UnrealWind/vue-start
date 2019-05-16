@@ -20,7 +20,7 @@
         </tkui-list-item>
       </tkui-list>
     </tkui-form>
-    <tkui-button @click="changePassword()" primary raised big block border>提交</tkui-button>
+    <tkui-button @click="changePassword" primary raised big block border>提交</tkui-button>
   </tk-container>
 </template>
 
@@ -28,7 +28,7 @@
 export default {
   name: 'changePassword',
   layout: '',
-  data: function () {
+  data () {
     return {
       usedPassword: '',
       newPassWord: '',
@@ -36,7 +36,7 @@ export default {
     }
   },
   methods: {
-    changePassword: function () {
+    changePassword () {
       let jud = this.$refs.form_all.validate()
       jud.length == 0 && this.newPassWord == this.reNewPassWord ? this.putUser() : this.$tkGlobal.toast.add('请正确填写密码！')
     },
