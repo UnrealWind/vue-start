@@ -7,7 +7,7 @@
       {{shopName}}
     </tkui-header>
     <tkui-list>
-      <tkui-list-item divider v-for="opt in currentCommodity" >
+      <tkui-list-item divider v-for="(opt,index) in currentCommodity" :key="index">
         <tk-image  slot="left" alt="标签照" :src="opt.tagImg"  class="avatar"></tk-image>
         <div class="content"  @click="goCommodityPage(opt)">
           <div class="title">{{opt.modelName}}</div>
@@ -56,7 +56,7 @@ export default {
     },
     async getCommodity () {
       this.commodity = await this.$tkParse.getList('/classes/model', {
-        params: { // url参数
+        params: {
           where: {
             user: this.shopId
           }

@@ -25,7 +25,7 @@ export default {
   },
   methods: {
     async commit () {
-      let res = await this.$tkParse.post('/classes/feedBack', {
+      await this.$tkParse.post('/classes/feedBack', {
         feed: '',
         user: this.$store.state.user.objectId,
         feedBack: this.msg

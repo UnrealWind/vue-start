@@ -8,7 +8,7 @@
 
     <tkui-tab around ref="tab" v-model="orderType">
       <tkui-tab-item :label="tab.label" :name="tab.name" v-for="(tab,index) in tabs" :key="index">
-        <span  @click="goCartDetail(order)"  v-for="order in tab.orders">
+        <span  @click="goCartDetail(order)"  v-for="(order,index) in tab.orders" :key="index">
           <tkui-list >
             <div class="list-header" >
               <h2><span>{{order.titleName}}</span>
@@ -16,7 +16,9 @@
               </h2>
             </div>
             <tkui-list-item disableHover divider >
-              <img slot="left" v-if="shop && shop.tagimg" v-for="shop in order.detail" v-bind:src="shop.tagimg" class="avatar" />
+              <span v-for="(shop,index) in order.detail" :key="index">
+                <tk-image width="1200" height="600" slot="left" v-if="shop && shop.tagimg"  :src="shop.tagimg" class="avatar"></tk-image>
+              </span>
               <div class="content"  >
                 <div class="price gray" >共{{order.detail.length}}件商品，实付款：¥{{order.price}}
                 </div>
@@ -24,7 +26,7 @@
             </tkui-list-item>
           </tkui-list>
         </span>
-        <span v-if="tab.orders.length==0">
+        <span v-if="tab.orders.length===0">
           <tkui-list >
             <div class="list-header" >
               <h2><span>暂无数据！</span></h2>
@@ -74,12 +76,14 @@ export default {
       }]
     },
     orderType () {
+      let orderType
       switch (this.$getFlash('orderType')) {
-        case 'all':return '全部订单'; break
-        case 'unpaid':return '未付款'; break
-        case 'complete':return '已完成'; break
-        case 'close':return '已取消'; break
+        case 'all':orderType = '全部订单'; break
+        case 'unpaid':orderType = '未付款'; break
+        case 'complete':orderType = '已完成'; break
+        case 'close':orderType = '已取消'; break
       }
+      return orderType
     },
     userInfo () {
       return this.$store.state.user
@@ -112,7 +116,7 @@ export default {
       this.orders.forEach((n, i) => {
         n['price'] = 0
         switch (n.status) {
-          case 'unpaid':n.paidStatus = '未付款', this.orderUnpaid.push(n); break
+          case 'unpaid':n.paidStatus = '未付款'; this.orderUnpaid.push(n); break
           case 'complete':n.paidStatus = '已完成'; this.orderComplete.push(n); break
           case 'close':n.paidStatus = '已关闭'; this.orderClose.push(n); break
         }
@@ -120,9 +124,17 @@ export default {
         let titleName = {}
         n.detail.forEach((ni, ii) => {
           if (!ni) return
-          ni['price'] ? n.price += ni.price : ''
-          !titleName[ni.shop.shopName]
-            ? (ii == 0 ? n['titleName'] += ni.shop.shopName : n['titleName'] += '，' + ni.shop.shopName, titleName[ni.shop.shopName] = true) : ''
+          if (ni['price']) {
+            n.price += ni.price
+          }
+          if (!titleName[ni.shop.shopName]) {
+            if (ii === 0) {
+              n['titleName'] += ni.shop.shopName
+            } else {
+              n['titleName'] += '，' + ni.shop.shopName
+              titleName[ni.shop.shopName] = true
+            }
+          }
         })
       })
     },

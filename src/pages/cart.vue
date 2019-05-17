@@ -1,11 +1,11 @@
 <template>
   <tk-container :status="status">
     <tkui-header slot="header" center>购物车</tkui-header>
-    <tkui-list v-for="(commoditys, shopId) in cart">
+    <tkui-list v-for="(commoditys, shopId) in cart" :key="shopId">
       <div class="list-header">
         <h2>{{commoditys[0].shopName}}</h2>
       </div>
-      <tkui-list-item disableHover divider v-for="commodity in commoditys">
+      <tkui-list-item disableHover divider v-for="(commodity,index) in commoditys" :key="index">
         <tk-image slot="left"  :src="commodity.tagImg"  class="avatar"></tk-image>
         <div class="content" >
           <div class="title">{{commodity.modelName}}</div>
@@ -20,7 +20,7 @@
         </div>
       </tkui-list-item>
     </tkui-list>
-    <tkui-list v-if="JSON.stringify(cart)=='{}'">
+    <tkui-list v-if="JSON.stringify(cart)==='{}'">
       <tkui-list-item divider >
         <div class="content">
           <div class="title">请添加商品到购物车中！</div>
@@ -60,7 +60,7 @@ export default {
   },
   methods: {
     async chopHand (mark) {
-      if (JSON.stringify(this.cart) == '{}') {
+      if (JSON.stringify(this.cart) === '{}') {
         this.$tkGlobal.toast.add('请先添加商品到购物车内！')
         return false
       };
@@ -73,7 +73,6 @@ export default {
         status: 'unpaid',
         totalFee: this.totalPrice
       }).catch(err => {
-        // error code
         throw err
       })
       this.$push({
@@ -112,7 +111,7 @@ export default {
       }
     },
     calculation (num, commodity) {
-      if (commodity.quantity == 0 && Number(num) == '-1') return
+      if (commodity.quantity === 0 && Number(num) === '-1') return
       commodity.quantity += Number(num)
       this.totalPrice += Number(num) * commodity.price
     }

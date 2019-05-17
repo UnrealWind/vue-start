@@ -7,17 +7,24 @@
       库存列表
     </tkui-header>
 
-    <tkui-list v-if=" shop && shop.objectId">
-      <span v-for="brand in shop.mainBrand">
-        <tkui-list-item divider v-if="brand == opt.objectId"  v-for="(opt,index) in currentBrands">
-        <tk-image slot="left"  :src="opt.logo"  class="avatar"></tk-image>
-        <div class="content"  @click="goBikeBrand(opt)">
-          <div class="title">{{opt.name}}</div>
-          <div class="des"><span v-if="opt.objectId == info.brand" v-for="(info,index) in currentCommodity">{{info.modelName}}</span></div>
-        </div>
-      </tkui-list-item>
-      </span>
-    </tkui-list>
+      <span v-for="(brand,index) in shop.mainBrand" :key="index">
+        <tkui-list v-if=" shop && shop.objectId">
+          <span v-for="(opt,index) in currentBrands" :key="index">
+          <tkui-list-item divider v-if="brand === opt.objectId">
+              <tk-image slot="left"  :src="opt.logo"  class="avatar"></tk-image>
+              <div class="content"  @click="goBikeBrand(opt)">
+                <div class="title">{{opt.name}}</div>
+                <div class="des">
+                  <span v-for="(info,index) in currentCommodity" :key="index">
+                    <span v-if="opt.objectId === info.brand">{{info.modelName}}</span>
+                  </span>
+                </div>
+              </div>
+            </tkui-list-item>
+          </span>
+      </tkui-list>
+    </span>
+
     <tkui-button class="circle-btn" icon raised @click="$push( '/merchant/newBike')">
       <tk-icon color="#fff">plus</tk-icon>
     </tkui-button>
@@ -54,7 +61,7 @@ export default {
   },
   beforeRouteLeave (to, from, next) {
     // 使用了这个让用户不用误操作后退键回到login页面
-    to.path == '/login' ? next(false) : next()
+    to.path === '/login' ? next(false) : next()
   },
   methods: {
     async init () {
@@ -77,7 +84,7 @@ export default {
     },
     async getCommodity () {
       this.commodity = await this.$tkParse.getList('/classes/model', {
-        params: { // url参数
+        params: {
           where: {
             user: this.shop.objectId
           }

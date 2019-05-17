@@ -2,14 +2,14 @@
   <tk-container class="help-feedback">
     <tk-image height="220" :src="speImg"></tk-image>
     <div class="header">
-      <span  @click="goPersional">
-        <tk-avatar  @click="goPersional" size="64">
+      <span  @click="$push('/buyer/persionInfo')">
+        <tk-avatar  @click="$push('/buyer/persionInfo')" size="64">
           <tk-image v-if="!userInfo.avatar" src="http://moke-store.oss-cn-beijing.aliyuncs.com/5166583b-0ee1-4808-84a4-280abdfa9c2f.png" width="100" height="100"></tk-image>
           <tk-image v-else :src="userInfo.avatar" width="100" height="100"></tk-image>
         </tk-avatar>
       </span>
-      <h2  @click="goPersional">{{userInfo.username}}</h2>
-      <div class="setting"  @click="goPersional">
+      <h2  @click="$push('/buyer/persionInfo')">{{userInfo.username}}</h2>
+      <div class="setting"  @click="$push('/buyer/persionInfo')">
         <tk-icon color="#fff" material>settings</tk-icon>
       </div>
     </div>
@@ -27,7 +27,7 @@
     </div>
 
     <tkui-list class="margin-top">
-      <span @click="goHelpFeedback">
+      <span @click="$push('/buyer/helpFeedback')">
         <tkui-list-item>
         <tk-icon size="17" slot="left">Help</tk-icon>
         帮助反馈
@@ -61,12 +61,6 @@ export default {
           orderType: type
         }
       })
-    },
-    goPersional () {
-      this.$push('/buyer/persionInfo')
-    },
-    goHelpFeedback () {
-      this.$push('/buyer/helpFeedback')
     }
   }
 }

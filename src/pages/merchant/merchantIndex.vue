@@ -11,8 +11,10 @@
         <tkui-list-item>
         主营品牌
         <span slot="right">
-          <span v-for="(brand,index) in userInfo.mainBrand"><span v-if="index !== 0">、</span>
-            <span v-for="(opt,index) in mainBrand" v-if="opt.objectId == brand">{{opt.name}}</span>
+          <span v-for="(brand,index) in userInfo.mainBrand" :key="index"><span v-if="index !== 0">、</span>
+            <span v-for="(opt,index) in mainBrand" :key="index">
+              <span v-if="opt.objectId === brand">{{opt.name}}</span>
+            </span>
           </span>
         </span>
         <tk-icon color="#666" slot="right">return1</tk-icon>

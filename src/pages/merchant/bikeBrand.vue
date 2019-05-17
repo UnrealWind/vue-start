@@ -8,7 +8,7 @@
     </tkui-header>
 
     <tkui-list v-if="shop && shop.objectId && commodity && commodity.length>0">
-      <span @click="newBike(opt)" v-for="opt in commodity">
+      <span @click="newBike(opt)" v-for="(opt,index) in commodity" :key="index">
         <tkui-list-item  divider >
         <tk-image slot="left"  :src="opt.tagImg"  class="avatar"></tk-image>
         <div class="content" >
@@ -73,7 +73,7 @@ export default {
     async getModel () {
       // 这一页和之前商品列表是差不多的，再次验证了一下查询逻辑
       this.commodity = await this.$tkParse.getList('/classes/model', {
-        params: { // url参数
+        params: {
           where: {
             user: this.shop.objectId,
             brand: this.brandId

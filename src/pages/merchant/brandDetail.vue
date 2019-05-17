@@ -7,7 +7,7 @@
     </tkui-header>
     <h2>主营品牌</h2>
     <tk-flex wrap>
-      <div @click="chose(opt)" class="item tk-grid-4" v-for="opt in currentBrands">
+      <div @click="chose(opt)" class="item tk-grid-4" v-for="(opt,index) in currentBrands" :key="index">
         <tkui-button border primary v-show="!opt.active">{{opt.name}}</tkui-button>
         <tkui-button raised primary v-show="opt.active">{{opt.name}}</tkui-button>
       </div>
@@ -63,7 +63,7 @@ export default {
     },
     async putUser () {
       // ..  这里更新数据的文档写的有些模糊了，不过结合上下文来看是这么写，试了一下是可以的
-      let res = await this.$tkParse.put('/classes/_User/' + this.$store.state.user.objectId, {
+      await this.$tkParse.put('/classes/_User/' + this.$store.state.user.objectId, {
         mainBrand: this.userInfo.mainBrand
       }, {}).catch(e => {
         this.status = 'error'
@@ -74,11 +74,17 @@ export default {
     resetBrands () {
       let that = this
       let brand = JSON.parse(JSON.stringify(this.mainBrand))
-      !that.userInfo.mainBrand ? that.userInfo.mainBrand = [] : ''
+      if (!that.userInfo.mainBrand) {
+        that.userInfo.mainBrand = []
+      }
       brand.forEach((n, i) => {
-        !n['active'] ? n['active'] = false : ''
+        if (!n['active']) {
+          n['active'] = false
+        }
         that.userInfo.mainBrand.forEach((ni, ii) => {
-          ni == n.objectId ? n['active'] = true : ''
+          if (ni === n.objectId) {
+            n['active'] = true
+          }
         })
       })
       return brand

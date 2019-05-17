@@ -8,7 +8,7 @@
     </div>
 
     <tkui-form ref="form_all">
-      <tkui-list v-if="targetTab == 'phoneLogin'">
+      <tkui-list v-if="targetTab === 'phoneLogin'">
         <tkui-list-item>
           <tk-icon slot="left" material>phone_iphone</tk-icon>
           <tkui-form ref="form_phone">
@@ -22,7 +22,7 @@
         </tkui-list-item>
       </tkui-list>
 
-      <tkui-list v-if="targetTab == 'passwordLogin'">
+      <tkui-list v-if="targetTab === 'passwordLogin'">
         <tkui-list-item>
           <tk-icon slot="left" material>phone_iphone</tk-icon>
           <tkui-input v-model="username" label=""  rulers="required" noborder placeHolder="请输入账号"></tkui-input>
@@ -63,29 +63,31 @@ export default {
   methods: {
     // 用户登录
     async userLogin () {
-      return await this.$tkParse.post('/login', {
+      let res = await this.$tkParse.post('/login', {
         username: this.username,
         password: this.password
       }).catch(e => {
         this.$tkGlobal.toast.add('登录失败！请重试！')
       })
+      return res
     },
 
     // 手机号登录
     async phoneLogin () {
-      return await this.$tkParse.post('/loginByPhone', {
+      let res = await this.$tkParse.post('/loginByPhone', {
         phone: this.phone,
         code: this.code
       }).catch(e => {
         this.$tkGlobal.toast.add('登录失败！请重试！')
       })
+      return res
     },
 
     // 登录
     async login () {
       let jud = this.$refs.form_all.validate()
       if (jud.length !== 0) return
-      if (this.targetTab == 'phoneLogin') {
+      if (this.targetTab === 'phoneLogin') {
         let res = await this.phoneLogin()
         res.data['role'] = 'buyer'
         this.setInfo(res)
@@ -110,14 +112,16 @@ export default {
     // 发送验证码
     async getCode () {
       let jud = this.$refs.form_phone.validate()
-      jud.length == 0 ? await this.$tkParse.post('/sms/sendCode', {
-        phone: this.phone,
-        templateId: 'ISxi11'
-      }).catch(e => {
-        // 短信发送失败
-        this.$tkGlobal.toast.add('短信发送失败！请重试')
-        throw e
-      }) : ''
+      if (jud.length === 0) {
+        await this.$tkParse.post('/sms/sendCode', {
+          phone: this.phone,
+          templateId: 'ISxi11'
+        }).catch(e => {
+          // 短信发送失败
+          this.$tkGlobal.toast.add('短信发送失败！请重试')
+          throw e
+        })
+      }
       this.$tkGlobal.toast.add('短信发送成功！')
     }
   }

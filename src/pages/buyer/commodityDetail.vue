@@ -79,19 +79,18 @@ export default {
     },
     async getCommodity () {
       this.commodity = await this.$tkParse.getFirst('/classes/model', {
-        params: { // url参数
+        params: {
           where: {
             user: this.shopId,
             objectId: this.commodityId
           }
         }
       }).catch(err => {
-        // error code
         throw err
       })
     },
     calculation (num) {
-      if (this.quantity == 0 && Number(num) == '-1') return
+      if (this.quantity === 0 && Number(num) === '-1') return
       this.quantity += Number(num)
     },
     addin () {

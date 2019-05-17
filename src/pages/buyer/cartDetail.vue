@@ -11,11 +11,11 @@
       </tkui-button>
       {{paidStatus}}
     </tkui-header>
-    <tkui-list v-for="(commoditys, shopId) in cart">
+    <tkui-list v-for="(commoditys, shopId) in cart" :key="shopId">
       <div class="list-header">
         <h2>{{commoditys[0].shop.shopName}}</h2>
       </div>
-      <tkui-list-item disableHover divider v-for="commodity in commoditys">
+      <tkui-list-item disableHover divider v-for="(commodity,index) in commoditys" :key="index">
         <tk-image slot="left"  :src="commodity.tagimg"  class="avatar"></tk-image>
         <div class="content" >
           <div class="title">{{commodity.modelName}}</div>
@@ -60,11 +60,13 @@ export default {
       return cart
     },
     paidStatus () {
+      let order
       switch (this.order) {
-        case 'unpaid':return '未付款'; break
-        case 'complete':return '已完成'; break
-        case 'close':return '已关闭'; break
+        case 'unpaid':order = '未付款'; break
+        case 'complete':order = '已完成'; break
+        case 'close':order = '已关闭'; break
       }
+      return order
     }
   },
   mounted () {

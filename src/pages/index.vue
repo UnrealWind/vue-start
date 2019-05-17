@@ -13,13 +13,13 @@
         </div>
       </tkui-header>
       <tk-slider loop autoPlay>
-        <div class="slider-item" v-for="image,index in imgs" :key="index">
+        <div class="slider-item" v-for="(image,index) in imgs" :key="index">
           <tk-image style="width: 100%;" :src="image.image" width="1200" height="600"></tk-image>
         </div>
       </tk-slider>
       <div class="center"><tk-image height="40" :src="speImg"></tk-image></div>
       <tkui-list>
-        <tkui-list-item divider v-for="opt in currentShop" >
+        <tkui-list-item divider v-for="(opt,index) in currentShop" :key="index">
           <tk-image slot="left"  :src="opt.storePhoto" width="1200" height="600" class="avatar"></tk-image>
           <div class="content" @click="goShopPage(opt)">
             <div class="title">{{opt.shopName}}
@@ -27,8 +27,12 @@
             </div>
             <div class="des">{{opt.txtLocation}}</div>
             <div v-if="opt.user" class="btn-box">
-              <span v-for="tagBrand in opt.user.mainBrand">
-              <tkui-button raised rounded primary small disabled v-for="brand in brands" v-if="tagBrand == brand.objectId">{{brand.name}}</tkui-button>
+              <span v-for="(tagBrand,index) in opt.user.mainBrand" :key="index">
+                <span v-for="(brand,index) in brands" :key="index">
+                  <tkui-button raised rounded primary small disabled v-if="tagBrand === brand.objectId" >
+                    {{brand.name}}
+                  </tkui-button>
+                </span>
             </span>
             </div>
           </div>
@@ -100,7 +104,7 @@ export default {
     // 无限加载
     async loadingMore (page, next) {
       // 初始状态不进行loadingmore操作
-      if (this.pageNum == 0) {
+      if (this.pageNum === 0) {
         await this.getLocal()
       }
       await this.getShop()
@@ -117,7 +121,7 @@ export default {
     },
     async getBrand () {
       this.brands = await this.$tkParse.getList('/classes/brand', {
-        params: { // url参数
+        params: {
           include: 'user'
         }
       })
@@ -169,7 +173,7 @@ export default {
     },
     async scan () {
       // scanResult 为成功扫描后返回的数据
-      let scanResult = await this.$refs.scaner.scan()
+      await this.$refs.scaner.scan()
         .catch(e => {
           console.log(e.type) // 错误类型, cancel 代表用户主动取消扫码， error代表其他错误
           console.log(e.message) // 错误说明

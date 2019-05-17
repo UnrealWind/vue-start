@@ -19,9 +19,9 @@
     </tkui-list>
 
     <tkui-list small>
-      <span  v-for="(opts,key) in targetList">
+      <span  v-for="(opts,key) in targetList" :key="key">
         <h3>{{key}}</h3>
-          <span v-for="(opt,index) in opts"  @click="setCity(opt)">
+          <span v-for="(opt,index) in opts"  @click="setCity(opt)" :key="index">
             <tkui-list-item>
               <h4>{{opt.name}}</h4>
             </tkui-list-item>

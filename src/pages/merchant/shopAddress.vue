@@ -86,12 +86,20 @@ export default {
       this.shopName = res.shopName
       this.location = res.location
       this.address = res.txtLocation
-      !this.file.url ? this.file['url'] = res.storePhoto : ''
+      if (!this.file.url) {
+        this.file['url'] = res.storePhoto
+      }
       this.shopId = res.objectId
     },
     save () {
       let url, method
-      this.shopId ? (url = '/classes/shop/' + this.shopId, method = 'put') : (url = '/classes/shop', method = 'post')
+      if (this.shopId) {
+        url = '/classes/shop/' + this.shopId
+        method = 'put'
+      } else {
+        url = '/classes/shop'
+        method = 'post'
+      }
       !this.location || !this.location.latitude
         ? this.$tkGlobal.toast.add('请在地图上选择您的店铺位置！') : this.changeShop(method, url)
     },
@@ -103,7 +111,6 @@ export default {
         storePhoto: this.file.url,
         txtLocation: this.address
       }).catch(e => {
-        // err code
         throw e
       })
       this.$tkGlobal.toast.add('店铺修改成功！')
@@ -111,6 +118,7 @@ export default {
     },
     initMap () {
       let that = this
+      /* global AMap */
       let map = new AMap.Map('container', {
         resizeEnable: true,
         zoom: 13
@@ -122,16 +130,18 @@ export default {
           position: [this.location.longitude, this.location.latitude]
         }]
         markers.forEach(function (marker) {
+          /* eslint-disable no-new */
           new AMap.Marker({
             map: map,
             icon: marker.icon,
             position: [marker.position[0], marker.position[1]],
-            offset: new AMap.Pixel(-13, -30)
+            offset: new AMap.Pixel(-30, -60)
           })
         })
       }
-      this.location.latitude ? mapMarker() : ''
-
+      if (this.location.latitude) {
+        mapMarker()
+      }
       // 为地图注册click事件获取鼠标点击出的经纬度坐标
       map.on('click', function (e) {
         that.location = {

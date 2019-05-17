@@ -53,9 +53,11 @@ export default {
   },
   mounted () {
     this.userInfo = this.$store.state.user
-    this.userInfo.avatar ? this.file = {
-      url: this.userInfo.avatar
-    } : ''
+    if (this.userInfo.avatar) {
+      this.file = {
+        url: this.userInfo.avatar
+      }
+    }
   },
   computed: {
     isImage () {

@@ -64,10 +64,15 @@ export default {
       let brands = {}
       this.mainBrand.forEach((n, i) => {
         this.userInfo.mainBrand.forEach((ni, ii) => {
-          ni == n.objectId ? brands[n.objectId] = n.name : ''
+          if (ni === n.objectId) {
+            brands[n.objectId] = n.name
+          }
         })
       })
       return brands
+    },
+    bikeId () {
+      return this.$getFlash('bikeId')
     }
   },
   mounted () {
@@ -77,11 +82,14 @@ export default {
     async init () {
       try {
         this.getBrand()
-        this.$getFlash('bikeId') ? this.getBike() : ''
+        if (this.bikeId) {
+          this.getBike()
+        }
       } catch (e) {
         this.status = 'error'
         throw e
       }
+      this.status = false
     },
     async getBike () {
       this.bike = await this.$tkParse.getFirst('/classes/model', {
@@ -90,8 +98,6 @@ export default {
             objectId: this.$getFlash('bikeId')
           }
         }
-      }).catch(e => {
-        throw e
       })
       JSON.stringify(this.bike) !== '{}' ? this.status = false : this.status = 'empty'
       this.bikeName = this.bike.modelName
@@ -103,8 +109,6 @@ export default {
     async getBrand () {
       this.mainBrand = await this.$tkParse.getList('/classes/brand', {
         params: {}
-      }).catch(e => {
-        throw e
       })
     },
     pick () {
@@ -138,7 +142,7 @@ export default {
       this.$back()
     },
     async putModel () {
-      await this.$tkParse.put('/classes/model/' + this.$route.query.bikeId, {
+      await this.$tkParse.put('/classes/model/' + this.bikeId, {
         user: this.userInfo.objectId,
         price: Number(this.price),
         tagImg: this.file.url || null,
