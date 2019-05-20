@@ -1,7 +1,6 @@
 import router from '../router'
 import VueTk from '@moke/vue-tk'
 import store from '../store/index'
-import routerAuth from './user.js'
 
 const auth = [{
   match: '*',

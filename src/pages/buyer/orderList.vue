@@ -66,7 +66,7 @@ export default {
         label: '待付款',
         orders: this.orderUnpaid
       }, {
-        name: 'compelete',
+        name: 'complete',
         label: '已完成',
         orders: this.orderComplete
       }, {
@@ -78,10 +78,10 @@ export default {
     orderType () {
       let orderType
       switch (this.$getFlash('orderType')) {
-        case 'all':orderType = '全部订单'; break
-        case 'unpaid':orderType = '未付款'; break
-        case 'complete':orderType = '已完成'; break
-        case 'close':orderType = '已取消'; break
+        case 'all':orderType = 'all'; break
+        case 'unpaid':orderType = 'unpaid'; break
+        case 'complete':orderType = 'complete'; break
+        case 'close':orderType = 'close'; break
       }
       return orderType
     },

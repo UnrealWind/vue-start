@@ -1,5 +1,5 @@
-import { tkParse } from '@moke/vue-tk'
 import store from '../store/index'
+import VueTk from '@moke/vue-tk'
 
 export default async () => {
   // TODO: 完成用户自动登录
