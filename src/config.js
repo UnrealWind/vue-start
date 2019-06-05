@@ -1,6 +1,7 @@
 const config = {
   vuexStorageKeys: [
-    'sessionToken'
+    'sessionToken',
+    'user'
   ],
   plugins: [
     'tk',

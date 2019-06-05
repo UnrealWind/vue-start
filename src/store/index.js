@@ -22,14 +22,19 @@ const store = new Vuex.Store({
       state.user = user
     },
 
-    //这里购物车的数据需要按照之前做一下适配然后存起来，为了方便获取使用objectId作为key
+    // 这里购物车的数据需要按照之前做一下适配然后存起来，为了方便获取使用objectId作为key
     setCart (state, cart) {
       !state.cart[cart.shopId] ? state.cart[cart.shopId] = [cart] : (() => {
         let has
         state.cart[cart.shopId].forEach(function (n, i) {
-          n.objectId == cart.objectId ? (n.quantity += cart.quantity, has = true) : ''
+          if (n.objectId === cart.objectId) {
+            n.quantity += cart.quantity
+            has = true
+          }
         })
-        !has ? state.cart[cart.shopId].push(cart) : ''
+        if (!has) {
+          state.cart[cart.shopId].push(cart)
+        }
       })()
     },
 

@@ -61,7 +61,7 @@ export default {
     },
     paidStatus () {
       let order
-      switch (this.order) {
+      switch (this.order.status) {
         case 'unpaid':order = '未付款'; break
         case 'complete':order = '已完成'; break
         case 'close':order = '已关闭'; break

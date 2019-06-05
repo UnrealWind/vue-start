@@ -49,7 +49,8 @@ export default {
       orderUnpaid: [],
       orderComplete: [],
       orderClose: [],
-      status: 'loading'
+      status: 'loading',
+      orderType: this.$getFlash('orderType')
     }
   },
   mounted () {
@@ -74,16 +75,6 @@ export default {
         label: '已关闭',
         orders: this.orderClose
       }]
-    },
-    orderType () {
-      let orderType
-      switch (this.$getFlash('orderType')) {
-        case 'all':orderType = 'all'; break
-        case 'unpaid':orderType = 'unpaid'; break
-        case 'complete':orderType = 'complete'; break
-        case 'close':orderType = 'close'; break
-      }
-      return orderType
     },
     userInfo () {
       return this.$store.state.user

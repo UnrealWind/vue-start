@@ -32,6 +32,7 @@
 </template>
 
 <script>
+import * as wx from 'jweixin-npm'
 export default {
   name: 'bikeList',
   layout: '',
@@ -55,13 +56,10 @@ export default {
   },
   created () {
     this.init()
+    alert(JSON.stringify(wx.miniProgram))
   },
   mounted () {
     // this.init()
-  },
-  beforeRouteLeave (to, from, next) {
-    // 使用了这个让用户不用误操作后退键回到login页面
-    to.path === '/login' ? next(false) : next()
   },
   methods: {
     async init () {

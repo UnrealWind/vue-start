@@ -13,7 +13,7 @@ const auth = [{
   handler: function (route, next) { // 路由鉴权方法
     // 判断路由是否有权访问
     if (store.state.user && store.state.sessionToken) {
-      store.state.user.role !== 'buyer' && route.path === '/' ? next('/merchant/bikeList') : next(true)
+      next(true)
     } else {
       next('/login') // 跳转到该地址
     }

@@ -89,17 +89,14 @@ export default {
       if (jud.length !== 0) return
       if (this.targetTab === 'phoneLogin') {
         let res = await this.phoneLogin()
-        res.data['role'] = 'buyer'
         this.setInfo(res)
-        this.$push('/')
       } else {
         let res = await this.userLogin()
-        res.data['role'] = 'merchant'
         this.setInfo(res)
 
         // 这里业务逻辑让跳转这个页面为第一个页面,本来我以为是跳转到merchantIndex的
-        this.$push('/merchant/bikeList')
       }
+      this.$store.state.user.hasOwnProperty('isDealer') ? this.$push('/merchant/bikeList') : this.$push('/')
     },
 
     // 这里校验一下非空进行不同的store存储 this.$store.commit('setSessionToken',this.username)
